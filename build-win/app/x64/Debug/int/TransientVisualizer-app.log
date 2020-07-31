@@ -1,0 +1,63 @@
+﻿  asio.cpp
+  asiodrivers.cpp
+  asiolist.cpp
+  iasiothiscallresolver.cpp
+  RtAudio.cpp
+  RtMidi.cpp
+  IControls.cpp
+  IPopupMenuControl.cpp
+  ITextEntryControl.cpp
+  IControl.cpp
+  IGraphics.cpp
+  IGraphicsEditorDelegate.cpp
+  IGraphicsWin.cpp
+  IPlugAPP.cpp
+  IPlugAPP_dialog.cpp
+  IPlugAPP_host.cpp
+  IPlugAPP_main.cpp
+  IPlugAPIBase.cpp
+  IPlugParameter.cpp
+  IPlugPaths.cpp
+  IPlugPluginBase.cpp
+  IPlugProcessor.cpp
+  IPlugTimer.cpp
+  TransientVisualizer.cpp
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(52,17): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(78,15): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(79,17): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(83,21): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(86,97): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(86,81): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(87,59): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(87,52): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(87,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(92,15): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(93,18): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(94,18): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(120,19): warning C4244: '=': conversion from 'double' to 'int', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(124,35): warning C4244: '=': conversion from 'const _Ty' to 'float', possible loss of data
+          with
+          [
+              _Ty=int
+          ] (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(128,28): warning C4244: '=': conversion from 'int' to 'float', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(130,44): warning C4244: '=': conversion from 'int' to 'float', possible loss of data (compiling source file ..\TransientVisualizer.cpp)
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(50,47): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(50,20): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+  TransientVisualizer-app.vcxproj -> C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\app\x64\Debug\TransientVisualizer.exe
+  POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
+  FORMAT ".exe" 
+  NAME "TransientVisualizer" 
+  PLATFORM "x64" 
+  COPY_VST2 "1" 
+  BUILT_BINARY "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\app\x64\Debug\TransientVisualizer.exe" 
+  VST2_32_PATH "C:\Program Files (x86)\VstPlugins" 
+  VST2_64_PATH "C:\Program Files\VstPlugins"  
+  VST3_32_PATH "C:\Program Files (x86)\Common Files\VST3" 
+  VST3_64_PATH "C:\Program Files\Common Files\VST3" 
+  BUILD_DIR "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win"
+  VST_ICON "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\projects\..\..\..\Dependencies\IPlug\VST3_SDK\doc\artwork\VST_Logo_Steinberg.ico" 
+  AAX_ICON "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\projects\..\..\..\Dependencies\IPlug\AAX_SDK\Utilities\PlugIn.ico" 
+  CREATE_BUNDLE_SCRIPT "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\projects\..\..\..\Scripts\create_bundle.bat"
+  END POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
+          1 fichier(s) copié(s).
