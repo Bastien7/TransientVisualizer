@@ -12,6 +12,7 @@ const int kNumPresets = 1;
 enum EParams
 {
   kGain = 0,
+  kSmooth = 1,
   kModePeakRms,
   kNumParams
 };
@@ -24,9 +25,10 @@ using namespace igraphics;
 class TransientVisualizer final : public Plugin {
   private:
     UiSetting* setting;
-    FifoMemory* memory;
+    FifoMemory* memoryRms;
+    FifoMemory* memoryPeak;
     Measure measure = Measure();
-    double peakMeasure = 0;
+    MeasureMax peakMeasure = MeasureMax();
 
   public:
     TransientVisualizer(const InstanceInfo& info);

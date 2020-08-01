@@ -5,6 +5,7 @@
 #include <string>
 #include <stdlib.h>     /* calloc, exit, free */
 #include <math.h>       /* floor */
+
 //#include <chrono>
 using namespace std;
 
@@ -23,23 +24,28 @@ class GraphVisualizer : public IControl {
   private:
     IColor lineColor = IColor(255, 230, 115, 115);
     IColor fillColor = IColor(230, 102, 50, 50);
-    IColor markerColor = IColor(51, 255, 255, 255);
+    IColor textMarkerColor = IColor(160, 255, 255, 255);
+    IColor markerColor = IColor(80, 255, 255, 255);
+    IColor markerAlternativeColor = IColor(50, 255, 255, 255);
     IColor backgroundColor = IColor(255, 18, 30, 43);
 
   public:
     UiSetting* setting;
-    FifoMemory* memory;
+    FifoMemory* memoryRms;
+    FifoMemory* memoryPeak;
     int stepper = 0;
     int side = 1;
     int previousMemoryIterator = -1;
     float previousDisplayFactor = -1;
+    float previousSmooth = 0;
+    int previousMode = 0;
 
     long counterResetDone = 0;
     long counterResetAvoided = 0;
     float* polygonX = nullptr;
     float* polygonY = nullptr;
 
-    GraphVisualizer(const IRECT& bounds, UiSetting* setting, FifoMemory* memory) : IControl(bounds), setting(setting), memory(memory) { }
+    GraphVisualizer(const IRECT& bounds, UiSetting* setting, FifoMemory* memoryRms, FifoMemory* memoryPeak) : IControl(bounds), setting(setting), memoryRms(memoryRms), memoryPeak(memoryPeak) { }
 
     void Draw(IGraphics& g) override {
       //auto start_time = std::chrono::high_resolution_clock::now();
@@ -48,10 +54,11 @@ class GraphVisualizer : public IControl {
       SetDirty();
 
       float gain = setting->gain;
-      float displayFactor = (1 - gain*gain) + (10 * gain*gain);
+      //float displayFactor = (1 - gain*gain) + (10 * gain*gain);
+      float displayFactor = (.25 - gain*gain) + (10 * gain*gain);
       int width = floor(this->mRECT.R / displayFactor);
 
-      if (this->memory->currentIterator == previousMemoryIterator && displayFactor == previousDisplayFactor) {
+      if (this->memoryRms->currentIterator == previousMemoryIterator && displayFactor == previousDisplayFactor && setting->smooth == previousSmooth && setting->modeRmsPeak == previousMode) {
         drawPolygons(g, width + 2);
         drawMarkers(g);
 
@@ -62,11 +69,14 @@ class GraphVisualizer : public IControl {
         drawPolygons(g, width + 2);
         drawMarkers(g);
 
-        previousMemoryIterator = this->memory->currentIterator;
+        previousMemoryIterator = this->memoryRms->currentIterator;
         previousDisplayFactor = displayFactor;
+        previousSmooth = setting->smooth;
+        previousMode = setting->modeRmsPeak;
         counterResetDone++;
       }
     }
+
 
   private:
     void drawPolygons(IGraphics& g, int polygonLength) {
@@ -79,42 +89,65 @@ class GraphVisualizer : public IControl {
       int width = this->mRECT.R;
       int pixelStep = 55 / 3 * setting->visualizerHeight;
 
-      for (float levelDb = -3; levelDb > -55; levelDb -= 3) {
-        int markerY = top - ((levelDb) / 55 * setting->visualizerHeight);
-        string textString = (to_string((int)levelDb) + "dB");
+      for (int levelDb = -3; levelDb > -55; levelDb -= 3) {
+        int markerY = top - (levelDb / 55.0 * setting->visualizerHeight);
+        string textString = to_string((int)levelDb);
         auto text = textString.c_str();
-        g.DrawText(IText(14.0F, markerColor), text, IRECT(0, markerY - pixelStep-2, 30, markerY + pixelStep));
-        g.DrawDottedLine(markerColor, 30, markerY, width, markerY, 0, 1.0f, 2.0f);
+        IColor lineColor = levelDb % 2 != 0 ? markerAlternativeColor : markerColor;
+        const int textOffset = 20;
+
+        g.DrawText(IText(14.0F, textMarkerColor), text, IRECT(width - textOffset, markerY - pixelStep-2, width, markerY + pixelStep));
+        g.DrawDottedLine(lineColor, 0, markerY, width - textOffset, markerY, 0, 1.0f, 3.0f);
       }
     }
 
     void resetPolygonPositions(int width, float displayFactor) {
+      auto mode = setting->modeRmsPeak;
       int top = this->mRECT.T;
       int bottom = this->mRECT.B;
       int height = this->mRECT.H();
       setting->visualizerHeight = height;
 
+      //free old memory arrays
       if (polygonX != nullptr) {
         free(polygonX);
         free(polygonY);
       }
 
+      //allocate new memory arrays
       int polygonLength = width + 2;
       polygonX = (float*)calloc(polygonLength, sizeof(float));
       polygonY = (float*)calloc(polygonLength, sizeof(float));
 
-      for (int column = width; column >= 0; column--) {
-        int dataIndex = this->memory->currentIterator - (width - column); // (width - 1 - column);
+      //initialize all columns to an empty data
+      for (int i = 0; i < polygonLength; i++) {
+        polygonY[i] = bottom + 1;
+      }
 
-        if (dataIndex < 1) {
-          dataIndex += this->memory->size - 1;
+      //instantiate all polygon data points
+      for (int column = width; column >= 0; column--) {
+        int dataIndex = this->memoryRms->currentIterator - (width - column); // (width - 1 - column);
+
+        if (dataIndex < 0) {
+          dataIndex += this->memoryRms->size - 1;
         }
 
-        //int y = (bottom + 1) - memory->get(dataIndex) * 20;
-        auto value = memory->get(dataIndex);
+        double value;
+        //auto a = memoryRms->get(dataIndex);
+        //auto b = memoryPeak->get(dataIndex);
+
+        if (mode == 0) {
+          value = memoryRms->get(dataIndex);
+        } else if(mode == 1) {
+          value = memoryPeak->get(dataIndex);
+        } else {
+          auto test = (setting->smooth * (memoryRms->get(dataIndex) - height)) + height;
+          value = min((setting->smooth * (memoryRms->get(dataIndex) - height)) + height, memoryPeak->get(dataIndex));
+        }
+
         int y;
 
-        if (value == -1) {
+        if (value == -1 || dataIndex < 0) {
           y = bottom + 1;
         } else {
           y = top + value;
@@ -124,46 +157,10 @@ class GraphVisualizer : public IControl {
         polygonY[column + 1] = max(y, top + 1);
       }
 
+      //set tup first and last polygon point, so that they invisibly join under the screen
       polygonX[0] = 0;
       polygonY[0] = bottom + 1;
       polygonX[polygonLength - 1] = polygonLength * displayFactor - 1;
       polygonY[polygonLength - 1] = bottom + 1;
     }
-
-    void drawDemo() {
-      /*
-      int value = 0;
-      int incrementer = 1;
-      auto a = setting->gain->Value() / 100;
-      auto MAX_HEIGHT = a * 40; //setting->gain->Value()/100 * 40;
-
-      for (int i = stepper; i < 500; i++) {
-        g.DrawLine(COLOR_RED, i - 1, 40 + value - incrementer, i, 40 + value, 0, setting->gain->Value() / 100 * 5);
-
-        if (value >= MAX_HEIGHT) {
-          incrementer = -1;
-        }
-        else if (value <= -MAX_HEIGHT) {
-          incrementer = 1;
-        }
-
-        value += incrementer;
-      }
-
-      if (stepper >= 500) {
-        side = -3;
-      }
-      if (stepper <= 0) {
-        side = 3;
-      }
-      stepper += side;*/
-    }
-
-    /*
-    void OnRescale() override {
-    }
-
-    void OnResize() override {
-    }
-    */
 };
