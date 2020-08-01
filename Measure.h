@@ -3,6 +3,7 @@
 #include <math.h>
 
 const double MINIMUM_VOLUME = 0.001; // -55dB threshold
+const double MINIMUM_VOLUME_DB = -55; // dB
 
 
 class Measure {

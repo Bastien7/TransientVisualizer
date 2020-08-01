@@ -5,11 +5,9 @@ using namespace iplug;
 using namespace igraphics;
 
 
-
 class UiSetting {
   public:
     float gain;
     float smooth;
-    int modeRmsPeak;
     int visualizerHeight;
 };

@@ -9,14 +9,14 @@ namespace converters {
     return 20 * log10(ratio);
   };
   inline static double convertRmsToDb(double ratio) {
-    return convertRatioToDbGain(ratio) + 5; //I don't yet know why it's needed... Maybe because of a specific signal level referential?
+    return convertRatioToDbGain(ratio);// +5; //I don't yet know why it's needed... Maybe because of a specific signal level referential?
   };
 
   inline static double convertDbGainToRatio(double gain) {
     return pow(10, gain / 20);
   };
   inline static double convertDbLevelToRatio(double gain) {
-    return convertDbGainToRatio(gain - 5);
+    return convertDbGainToRatio(gain /*- 5*/);
   };
 
   inline static double round(double value, int precision) {

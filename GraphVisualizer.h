@@ -38,7 +38,6 @@ class GraphVisualizer : public IControl {
     int previousMemoryIterator = -1;
     float previousDisplayFactor = -1;
     float previousSmooth = 0;
-    int previousMode = 0;
 
     long counterResetDone = 0;
     long counterResetAvoided = 0;
@@ -58,7 +57,7 @@ class GraphVisualizer : public IControl {
       float displayFactor = (.25 - gain*gain) + (10 * gain*gain);
       int width = floor(this->mRECT.R / displayFactor);
 
-      if (this->memoryRms->currentIterator == previousMemoryIterator && displayFactor == previousDisplayFactor && setting->smooth == previousSmooth && setting->modeRmsPeak == previousMode) {
+      if (this->memoryRms->currentIterator == previousMemoryIterator && displayFactor == previousDisplayFactor && setting->smooth == previousSmooth) {
         drawPolygons(g, width + 2);
         drawMarkers(g);
 
@@ -72,7 +71,6 @@ class GraphVisualizer : public IControl {
         previousMemoryIterator = this->memoryRms->currentIterator;
         previousDisplayFactor = displayFactor;
         previousSmooth = setting->smooth;
-        previousMode = setting->modeRmsPeak;
         counterResetDone++;
       }
     }
@@ -102,8 +100,7 @@ class GraphVisualizer : public IControl {
     }
 
     void resetPolygonPositions(int width, float displayFactor) {
-      auto mode = setting->modeRmsPeak;
-      int top = this->mRECT.T;
+      float top = this->mRECT.T;
       int bottom = this->mRECT.B;
       int height = this->mRECT.H();
       setting->visualizerHeight = height;
@@ -132,25 +129,20 @@ class GraphVisualizer : public IControl {
           dataIndex += this->memoryRms->size - 1;
         }
 
-        double value;
+        double yRelativeValue;
         //auto a = memoryRms->get(dataIndex);
         //auto b = memoryPeak->get(dataIndex);
 
-        if (mode == 0) {
-          value = memoryRms->get(dataIndex);
-        } else if(mode == 1) {
-          value = memoryPeak->get(dataIndex);
-        } else {
-          auto test = (setting->smooth * (memoryRms->get(dataIndex) - height)) + height;
-          value = min((setting->smooth * (memoryRms->get(dataIndex) - height)) + height, memoryPeak->get(dataIndex));
-        }
+        const double rmsValue = memoryRms->get(dataIndex);
+        const double peakValue = memoryPeak->get(dataIndex);
+        yRelativeValue = setting->smooth * min(rmsValue, peakValue) + (1.0f - setting->smooth) * peakValue;
 
-        int y;
+        float y;
 
-        if (value == -1 || dataIndex < 0) {
+        if (peakValue == -1 || dataIndex < 0) {
           y = bottom + 1;
         } else {
-          y = top + value;
+          y = top + yRelativeValue;
         }
 
         polygonX[column + 1] = column * displayFactor;
