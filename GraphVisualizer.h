@@ -41,8 +41,8 @@ class GraphVisualizer : public IControl {
 
     long counterResetDone = 0;
     long counterResetAvoided = 0;
-    float* polygonX = nullptr;
-    float* polygonY = nullptr;
+    float* polygonX = (float*)calloc(4000 * 4 + 2, sizeof(float));;
+    float* polygonY = (float*)calloc(4000 * 4 + 2, sizeof(float));;
 
     GraphVisualizer(const IRECT& bounds, UiSetting* setting, FifoMemory* memoryRms, FifoMemory* memoryPeak) : IControl(bounds), setting(setting), memoryRms(memoryRms), memoryPeak(memoryPeak) { }
 
@@ -105,16 +105,7 @@ class GraphVisualizer : public IControl {
       int height = this->mRECT.H();
       setting->visualizerHeight = height;
 
-      //free old memory arrays
-      if (polygonX != nullptr) {
-        free(polygonX);
-        free(polygonY);
-      }
-
-      //allocate new memory arrays
       int polygonLength = width + 2;
-      polygonX = (float*)calloc(polygonLength, sizeof(float));
-      polygonY = (float*)calloc(polygonLength, sizeof(float));
 
       //initialize all columns to an empty data
       for (int i = 0; i < polygonLength; i++) {
@@ -123,7 +114,7 @@ class GraphVisualizer : public IControl {
 
       //instantiate all polygon data points
       for (int column = width; column >= 0; column--) {
-        int dataIndex = this->memoryRms->currentIterator - (width - column); // (width - 1 - column);
+        int dataIndex = this->memoryRms->currentIterator - (width - column);
 
         if (dataIndex < 0) {
           dataIndex += this->memoryRms->size - 1;
