@@ -16,9 +16,14 @@ using namespace converters;
 RandomGenerator random{ 0,.01 };
 
 const int GRAPH_HEIGHT = 435; //px
+const int MAX_MEMORY_SIZE = 6000; //should it be set higher? (in relation to GraphVisualizer constant defined max memory size)
 
 
-TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info, MakeConfig(kNumParams, kNumPresets)), memorySmoothing(new FifoMemory(6000, -1)), memoryPeak(new FifoMemory(6000, -1)) {
+TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info, MakeConfig(kNumParams, kNumPresets)),
+    memoryInputSmoothing(new FifoMemory(MAX_MEMORY_SIZE, -1)),
+    memoryInputPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)),
+    memorySidechainPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)) {
+
   GetParam(kZoom)->InitDouble("Zoom", 100, 25, 1000, 1, "%", 0, "", IParam::ShapePowCurve(3));
   GetParam(kSmooth)->InitDouble("Smooth", 40, 0, 100.0, 1, "%", 0, "", IParam::ShapePowCurve(.5), IParam::kUnitPercentage);
   GetParam(kModeScrolling)->InitEnum("Scrolling mode", 0, 2, "", IParam::kFlagsNone, "", "Stop on silence", "Never stop");
@@ -44,7 +49,7 @@ TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info
     pGraphics->AttachControl(new IVKnobControl(upperPart.GetReducedFromRight(120).GetFromRight(120), kSmooth));
     pGraphics->AttachControl(new IVSwitchControl(upperPart.GetFromLeft(120), kModeScrolling, "Scrolling mode", DEFAULT_STYLE), 3);
 
-    pGraphics->AttachControl(new GraphVisualizer(lowerPart, setting, this->memorySmoothing, this->memoryPeak));
+    pGraphics->AttachControl(new GraphVisualizer(lowerPart, setting, this->memoryInputPeak, this->memoryInputSmoothing, this->memorySidechainPeak));
   };
   //#endif
 }
@@ -60,13 +65,13 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
     auto right = inputs[1][sampleIndex];
     auto level = (abs(left) + abs(right)) / 2;
 
-    /*double sidechainLeft;
-    double sidechainRight;
+    double sidechainLevel = -1.0;
 
-    if (inputs[2] && inputs[3]) {
-      sidechainLeft = inputs[2][sampleIndex];
-      sidechainRight = inputs[3][sampleIndex];
-    }*/
+    if (IsChannelConnected(ERoute::kInput, 2) && IsChannelConnected(ERoute::kInput, 3)) { //TODO see how to optimize this to not call it each time
+      double sidechainLeft = inputs[2][sampleIndex];
+      double sidechainRight = inputs[3][sampleIndex];
+      sidechainLevel = (abs(sidechainLeft) + abs(sidechainRight)) / 2;
+    }
     /*
     for (int channelIndex = 0; channelIndex < nChans; channelIndex++) {
       outputs[channelIndex][sampleIndex] = inputs[channelIndex][sampleIndex];
@@ -80,15 +85,21 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
     measurePeak4.learnNewLevel(level, !autoScroll);
     measurePeak5.learnNewLevel(level, !autoScroll);
 
+    measureSidechainPeak1.learnNewLevel(sidechainLevel, !autoScroll);
+
     if (measurePeak1.count >= GetSampleRate() / 200) {
       const double smoothingValue = (measurePeak2.max + measurePeak3.max + measurePeak4.max + measurePeak5.max) / 4;
       measureRatioPeakSmoothing.learnNewLevel(max(smoothingValue, measurePeak1.max) / smoothingValue);
 
-      double inputVolumeRmsDb = convertRmsToDb(measureRatioPeakSmoothing.average * smoothingValue);
-      memorySmoothing->addValue(inputVolumeRmsDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
+      double inputVolumeSmoothingDb = convertRmsToDb(measureRatioPeakSmoothing.average * smoothingValue);
+      memoryInputSmoothing->addValue(inputVolumeSmoothingDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
 
       double inputVolumePeakDb = convertRmsToDb(measurePeak1.max);
-      memoryPeak->addValue(inputVolumePeakDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
+      memoryInputPeak->addValue(inputVolumePeakDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
+
+      double sidechainVolumePeakDb = convertRmsToDb(measureSidechainPeak1.max);
+      memorySidechainPeak->addValue(sidechainVolumePeakDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
+
 
       if (measurePeak2.count >= GetSampleRate() / 10) {
         measurePeak2.resetSample();
@@ -108,6 +119,7 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
       }
 
       measurePeak1.resetSample();
+      measureSidechainPeak1.resetSample();
     }
 
     if (measureRatioPeakSmoothing.count >= GetSampleRate() / 10) {

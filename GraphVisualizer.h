@@ -19,32 +19,37 @@ using namespace iplug;
 using namespace igraphics;
 
 
+const IColor lineColor = IColor(255, 230, 115, 115);
+const IColor fillColor = IColor(230, 102, 50, 50);
+const IColor textMarkerColor = IColor(160, 255, 255, 255);
+const IColor markerColor = IColor(80, 255, 255, 255);
+const IColor markerAlternativeColor = IColor(50, 255, 255, 255);
+const IColor backgroundColor = IColor(255, 18, 30, 43);
+
 
 class GraphVisualizer : public IControl {
   private:
-    IColor lineColor = IColor(255, 230, 115, 115);
-    IColor fillColor = IColor(230, 102, 50, 50);
-    IColor textMarkerColor = IColor(160, 255, 255, 255);
-    IColor markerColor = IColor(80, 255, 255, 255);
-    IColor markerAlternativeColor = IColor(50, 255, 255, 255);
-    IColor backgroundColor = IColor(255, 18, 30, 43);
-
-  public:
     UiSetting* setting;
-    FifoMemory* memoryRms;
-    FifoMemory* memoryPeak;
-    int stepper = 0;
-    int side = 1;
+    FifoMemory* memoryInputPeak;
+    FifoMemory* memoryInputSmoothing;
+    FifoMemory* memorySidechainPeak;
+
     int previousMemoryIterator = -1;
     float previousDisplayFactor = -1;
     float previousSmooth = 0;
 
     long counterResetDone = 0;
     long counterResetAvoided = 0;
-    float* polygonX = (float*)calloc(4000 * 4 + 2, sizeof(float));;
-    float* polygonY = (float*)calloc(4000 * 4 + 2, sizeof(float));;
+    float* polygonX = (float*)calloc(4000 * 4 + 2, sizeof(float));
+    float* polygonY = (float*)calloc(4000 * 4 + 2, sizeof(float));
 
-    GraphVisualizer(const IRECT& bounds, UiSetting* setting, FifoMemory* memoryRms, FifoMemory* memoryPeak) : IControl(bounds), setting(setting), memoryRms(memoryRms), memoryPeak(memoryPeak) { }
+  public:
+    GraphVisualizer(const IRECT& bounds, UiSetting* setting, FifoMemory* memoryInputPeak, FifoMemory* memoryInputSmoothing, FifoMemory* memorySidechainPeak) :
+      IControl(bounds),
+      setting(setting),
+      memoryInputPeak(memoryInputPeak),
+      memoryInputSmoothing(memoryInputSmoothing),
+      memorySidechainPeak(memorySidechainPeak) { }
 
     void Draw(IGraphics& g) override {
       //auto start_time = std::chrono::high_resolution_clock::now();
@@ -55,7 +60,7 @@ class GraphVisualizer : public IControl {
       float displayFactor = setting->gain;
       int width = floor(this->mRECT.R / displayFactor);
 
-      if (this->memoryRms->currentIterator == previousMemoryIterator && displayFactor == previousDisplayFactor && setting->smooth == previousSmooth) {
+      if (this->memoryInputSmoothing->currentIterator == previousMemoryIterator && displayFactor == previousDisplayFactor && setting->smooth == previousSmooth) {
         drawPolygons(g, width + 2);
         drawMarkers(g);
 
@@ -66,7 +71,7 @@ class GraphVisualizer : public IControl {
         drawPolygons(g, width + 2);
         drawMarkers(g);
 
-        previousMemoryIterator = this->memoryRms->currentIterator;
+        previousMemoryIterator = this->memoryInputSmoothing->currentIterator;
         previousDisplayFactor = displayFactor;
         previousSmooth = setting->smooth;
         counterResetDone++;
@@ -112,18 +117,18 @@ class GraphVisualizer : public IControl {
 
       //instantiate all polygon data points
       for (int column = width; column >= 0; column--) {
-        int dataIndex = this->memoryRms->currentIterator - (width - column);
+        int dataIndex = this->memoryInputSmoothing->currentIterator - (width - column);
 
         if (dataIndex < 0) {
-          dataIndex += this->memoryRms->size - 1;
+          dataIndex += this->memoryInputSmoothing->size - 1;
         }
 
         double yRelativeValue;
         //auto a = memoryRms->get(dataIndex);
         //auto b = memoryPeak->get(dataIndex);
 
-        const double rmsValue = memoryRms->get(dataIndex);
-        const double peakValue = memoryPeak->get(dataIndex);
+        const double rmsValue = memoryInputSmoothing->get(dataIndex);
+        const double peakValue = memoryInputPeak->get(dataIndex);
         yRelativeValue = setting->smooth * min(rmsValue, peakValue) + (1.0f - setting->smooth) * peakValue;
 
         float y;

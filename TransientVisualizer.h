@@ -25,14 +25,18 @@ using namespace igraphics;
 class TransientVisualizer final : public Plugin {
   private:
     UiSetting* setting;
-    FifoMemory* memoryPeak;
-    FifoMemory* memorySmoothing;
+
+    FifoMemory* memoryInputPeak;
+    FifoMemory* memoryInputSmoothing;
     MeasureMax measurePeak1 = MeasureMax();
     MeasureMax measurePeak2 = MeasureMax();
     MeasureMax measurePeak3 = MeasureMax();
     MeasureMax measurePeak4 = MeasureMax();
     MeasureMax measurePeak5 = MeasureMax();
     Measure measureRatioPeakSmoothing = Measure();
+
+    FifoMemory* memorySidechainPeak;
+    MeasureMax measureSidechainPeak1 = MeasureMax();
 
   public:
     TransientVisualizer(const InstanceInfo& info);
