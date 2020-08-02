@@ -73,9 +73,6 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
     }*/
 
     bool autoScroll = GetParam(kModeScrolling)->Value() == 1;
-    if (autoScroll && level < MINIMUM_VOLUME) {
-      level = 0;
-    }
 
     measurePeak1.learnNewLevel(level, !autoScroll);
     measurePeak2.learnNewLevel(level, !autoScroll);
@@ -112,7 +109,7 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
 
       measurePeak1.resetSample();
     }
-    
+
     if (measureRatioPeakSmoothing.count >= GetSampleRate() / 10) {
       const double oldRatioAverage = measureRatioPeakSmoothing.average;
       measureRatioPeakSmoothing.resetSample();
