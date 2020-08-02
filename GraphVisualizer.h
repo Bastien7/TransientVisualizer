@@ -40,7 +40,7 @@ class GraphVisualizer : public IControl {
 
     long counterResetDone = 0;
     long counterResetAvoided = 0;
-    float* polygonX = (float*)calloc(4000 * 4 + 2, sizeof(float));
+    float* polygonX = (float*)calloc(4000 * 4 + 2, sizeof(float)); //4K width screens should be managed with this
     float* polygonY = (float*)calloc(4000 * 4 + 2, sizeof(float));
 
   public:
@@ -57,7 +57,7 @@ class GraphVisualizer : public IControl {
       g.FillRect(backgroundColor, this->mRECT);
       SetDirty();
 
-      float displayFactor = setting->gain;
+      float displayFactor = setting->zoom;
       int width = floor(this->mRECT.R / displayFactor);
 
       if (this->memoryInputSmoothing->currentIterator == previousMemoryIterator && displayFactor == previousDisplayFactor && setting->smooth == previousSmooth) {
@@ -146,7 +146,7 @@ class GraphVisualizer : public IControl {
       //set tup first and last polygon point, so that they invisibly join under the screen
       polygonX[0] = 0;
       polygonY[0] = bottom + 1;
-      polygonX[polygonLength - 1] = polygonLength * displayFactor - 1;
+      polygonX[polygonLength - 1] = polygonX[polygonLength - 2]; //polygonLength * displayFactor - 1;
       polygonY[polygonLength - 1] = bottom + 1;
     }
 };

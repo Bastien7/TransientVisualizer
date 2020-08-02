@@ -1,1 +1,26 @@
-﻿
+﻿  TransientVisualizer.cpp
+  TransientVisualizer-vst3.vcxproj -> C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\vst3\x64\Debug\TransientVisualizer.vst3
+  POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
+  FORMAT ".vst3" 
+  NAME "TransientVisualizer" 
+  PLATFORM "x64" 
+  COPY_VST2 "1" 
+  BUILT_BINARY "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\vst3\x64\Debug\TransientVisualizer.vst3" 
+  VST2_32_PATH "C:\Program Files (x86)\VstPlugins" 
+  VST2_64_PATH "C:\Program Files\VstPlugins"  
+  VST3_32_PATH "C:\Program Files (x86)\Common Files\VST3" 
+  VST3_64_PATH "C:\Program Files\Common Files\VST3" 
+  BUILD_DIR "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win"
+  VST_ICON "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\projects\..\..\..\Dependencies\IPlug\VST3_SDK\doc\artwork\VST_Logo_Steinberg.ico" 
+  AAX_ICON "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\projects\..\..\..\Dependencies\IPlug\AAX_SDK\Utilities\PlugIn.ico" 
+  CREATE_BUNDLE_SCRIPT "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\projects\..\..\..\Scripts\create_bundle.bat"
+  END POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
+  copying 64bit binary to VST3 BUNDLE ...
+  Create AAX/VST3 Package Directories
+  Set Folder Icon
+          1 fichier(s) copié(s).
+  copying VST3 bundle to 64bit VST3 Plugins folder ...
+  Create AAX/VST3 Package Directories
+  Set Folder Icon
+  C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\TransientVisualizer.vst3\Contents\x86_64-win\TransientVisualizer.vst3
+  1 fichier(s) copié(s)
