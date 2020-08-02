@@ -52,9 +52,7 @@ class GraphVisualizer : public IControl {
       g.FillRect(backgroundColor, this->mRECT);
       SetDirty();
 
-      float gain = setting->gain;
-      //float displayFactor = (1 - gain*gain) + (10 * gain*gain);
-      float displayFactor = (.25 - gain*gain) + (10 * gain*gain);
+      float displayFactor = setting->gain;
       int width = floor(this->mRECT.R / displayFactor);
 
       if (this->memoryRms->currentIterator == previousMemoryIterator && displayFactor == previousDisplayFactor && setting->smooth == previousSmooth) {

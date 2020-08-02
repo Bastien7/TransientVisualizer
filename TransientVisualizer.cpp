@@ -19,8 +19,8 @@ const int GRAPH_HEIGHT = 435; //px
 
 
 TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info, MakeConfig(kNumParams, kNumPresets)), memorySmoothing(new FifoMemory(6000, -1)), memoryPeak(new FifoMemory(6000, -1)) {
-  GetParam(kZoom)->InitDouble("Zoom", 25, 0, 100.0, 1, "%");
-  GetParam(kSmooth)->InitDouble("Smooth", 0, 0, 100.0, 1, "%");
+  GetParam(kZoom)->InitDouble("Zoom", 100, 25, 1000, 1, "%", 0, "", IParam::ShapePowCurve(3));
+  GetParam(kSmooth)->InitDouble("Smooth", 40, 0, 100.0, 1, "%", 0, "", IParam::ShapePowCurve(.5), IParam::kUnitPercentage);
   GetParam(kModeScrolling)->InitEnum("Scrolling mode", 0, 2, "", IParam::kFlagsNone, "", "Stop on silence", "Never stop");
   this->setting = new UiSetting();
 
