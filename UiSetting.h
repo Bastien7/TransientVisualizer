@@ -7,7 +7,7 @@ using namespace igraphics;
 
 class UiSetting {
   public:
-    float zoom;
-    float smooth;
-    int visualizerHeight;
+    float zoom = 1;
+    float smooth = 0;
+    int visualizerHeight = 1;
 };

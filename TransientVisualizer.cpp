@@ -20,6 +20,10 @@ const int MAX_MEMORY_SIZE = 6000; //should it be set higher? (in relation to Gra
 
 //ITextControl* text1 = new ITextControl(IRECT(200, 0, 300, 200), "test1", IText(30));
 //ITextControl* text2 = new ITextControl(IRECT(200, 30, 300, 230), "test2", IText(30));
+bool connected = true;
+int inputGeneratorCounter = 0;
+double inputGeneratorValue = .01;
+
 
 TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info, MakeConfig(kNumParams, kNumPresets)),
     memoryInputSmoothing(new FifoMemory(MAX_MEMORY_SIZE, -1)),
@@ -28,7 +32,7 @@ TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info
 
   GetParam(kZoom)->InitDouble("Zoom", 100, 25, 1000, 1, "%", 0, "", IParam::ShapePowCurve(3));
   GetParam(kSmooth)->InitDouble("Smooth", 40, 0, 100.0, 1, "%", 0, "", IParam::ShapePowCurve(.5), IParam::kUnitPercentage);
-  GetParam(kModeScrolling)->InitEnum("Scrolling mode", 0, 2, "", IParam::kFlagsNone, "", "Stop on silence", "Never stop");
+  GetParam(kModeScrolling)->InitEnum("Scrolling mode", 1, 2, "", IParam::kFlagsNone, "", "Stop on silence", "Never stop");
   this->setting = new UiSetting();
 
   //#if IPLUG_EDITOR // http://bit.ly/2S64BDd
@@ -46,7 +50,7 @@ TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info
     auto lowerPart = IRECT(b.L, b.T + b.H() / 4, b.R, b.B);
 
     //pGraphics->AttachControl(new ITextControl(upperPart.GetMidVPadded(50), "Hello Mouth!", IText(50)));
-    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.15", IText(20)));
+    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.17", IText(20)));
     //pGraphics->AttachControl(text1);
     //pGraphics->AttachControl(text2);
     pGraphics->AttachControl(new IVKnobControl(upperPart.GetFromRight(120), kZoom));
@@ -61,29 +65,58 @@ TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info
 //#if IPLUG_DSP
 void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nFrames) {
   this->setting->zoom = GetParam(kZoom)->Value() / 100.;
-  this->setting->smooth = GetParam(kSmooth)->Value() / 100;
+  this->setting->smooth = round(GetParam(kSmooth)->Value()) / 100;
   const int nChans = NOutChansConnected();
   const int sampleRate = GetSampleRate();
 
   for (int sampleIndex = 0; sampleIndex < nFrames; sampleIndex++) {
-    auto left = inputs[0][sampleIndex];
-    auto right = inputs[1][sampleIndex];
-    auto level = (abs(left) + abs(right)) / 2;
-
+    double level = -1;
     double sidechainLevel = -1.0;
 
+    //if (IsChannelConnected(ERoute::kInput, 0) && IsChannelConnected(ERoute::kInput, 1)) { //TODO see how to optimize this to not call it each time
+      double left = inputs[0][sampleIndex];
+      double right = inputs[1][sampleIndex];
+      //level = (abs(left) + abs(right)) / 2;
+      level = abs(left);
+      sidechainLevel = abs(right);
+    //}
+    
+    /*if (inputGeneratorCounter >= sampleRate/2) {
+      inputGeneratorCounter = 0;
+      if (inputGeneratorValue == .2) {
+        inputGeneratorValue = .01;
+      } else if (inputGeneratorValue == .01) {
+        inputGeneratorValue = 0;
+      } else inputGeneratorValue = .2;
+    }
+
+    level = inputGeneratorValue;
+    inputGeneratorCounter++;
+    */
+    //level = inputGeneratorCounter / 60000.0;
+    //if(inputGeneratorCounter > 0) inputGeneratorCounter--;
+    
+    /*
     if (IsChannelConnected(ERoute::kInput, 2) && IsChannelConnected(ERoute::kInput, 3)) { //TODO see how to optimize this to not call it each time
+      if(!connected)
+        text1->SetStr("Sidechain connected");
+      connected = true;
       double sidechainLeft = inputs[2][sampleIndex];
       double sidechainRight = inputs[3][sampleIndex];
       sidechainLevel = (abs(sidechainLeft) + abs(sidechainRight)) / 2;
-    }
+    } else {
+      if(connected)
+        text1->SetStr("Sidechain not connected");
+      connected = false;
+    }*/
+
     /*
     for (int channelIndex = 0; channelIndex < nChans; channelIndex++) {
       outputs[channelIndex][sampleIndex] = inputs[channelIndex][sampleIndex];
     }*/
 
     bool autoScroll = GetParam(kModeScrolling)->Value() == 1;
-
+    
     measurePeak1.learnNewLevel(level, !autoScroll);
     measurePeak2.learnNewLevel(level, !autoScroll);
     measurePeak3.learnNewLevel(level, !autoScroll);
