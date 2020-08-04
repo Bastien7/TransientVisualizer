@@ -110,10 +110,10 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
       connected = false;
     }*/
 
-    /*
+    
     for (int channelIndex = 0; channelIndex < nChans; channelIndex++) {
       outputs[channelIndex][sampleIndex] = inputs[channelIndex][sampleIndex];
-    }*/
+    }
 
     bool autoScroll = GetParam(kModeScrolling)->Value() == 1;
     
@@ -155,7 +155,7 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
       memoryInputSmoothing->addValue(inputVolumeSmoothingDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
 
 
-      double sidechainVolumePeakDb = convertRmsToDb(measureSidechainPeak1.max);
+      double sidechainVolumePeakDb = /*(inputVolumePeakDb + 2.0 * (-40.0)) / 3.0; */convertRmsToDb(measureSidechainPeak1.max);
       memorySidechainPeak->addValue(sidechainVolumePeakDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
 
 
