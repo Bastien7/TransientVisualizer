@@ -50,7 +50,7 @@ TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info
     auto lowerPart = IRECT(b.L, b.T + b.H() / 4, b.R, b.B);
 
     //pGraphics->AttachControl(new ITextControl(upperPart.GetMidVPadded(50), "Hello Mouth!", IText(50)));
-    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.17", IText(20)));
+    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.18", IText(20)));
     //pGraphics->AttachControl(text1);
     //pGraphics->AttachControl(text2);
     pGraphics->AttachControl(new IVKnobControl(upperPart.GetFromRight(120), kZoom));

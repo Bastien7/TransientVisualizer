@@ -22,13 +22,25 @@ using namespace iplug;
 using namespace igraphics;
 
 
+//const IColor lineColor = IColor(255, 230, 115, 115);
+
+//grey levels
+/*const IColor lineColor = IColor(255, 160, 150, 145);
+const IColor fillColor = IColor(230, lineColor.R * .5, lineColor.G * .5, lineColor.B * .5);
+const IColor fillDifferenceUpperColor = IColor(160, fillColor.R, fillColor.G, fillColor.B);
+const IColor fillDifferenceLowerColor = IColor(200, lineColor.R*.75, lineColor.G*.75, lineColor.B*.75);
+*/
+
 const IColor lineColor = IColor(255, 230, 115, 115);
-const IColor fillColor = IColor(230, 102, 50, 50);
-const IColor fillDifferenceColor = IColor(40, 255, 255, 255);
+const IColor fillColor = IColor(230, lineColor.R * .5, lineColor.G * .5, lineColor.B * .5);
+const IColor fillDifferenceUpperColor = IColor(160, fillColor.R, fillColor.G, fillColor.B);
+const IColor fillDifferenceLowerColor = IColor(60, 255, 40, 80); //IColor(50, 0, 0, 0);
+
 const IColor textMarkerColor = IColor(160, 255, 255, 255);
 const IColor markerColor = IColor(80, 255, 255, 255);
 const IColor markerAlternativeColor = IColor(50, 255, 255, 255);
 const IColor backgroundColor = IColor(255, 18, 30, 43);
+//const IColor backgroundColor = IColor(255, 35, 35, 35);
 const char* DB_LEVELS[] = { "-3", "-6", "-9", "-12", "-15", "-18", "-21", "-24", "-27", "-30", "-33", "-36", "-39", "-42", "-45", "-48", "-51", "-54" };
 const IText TEXT_COMPONENT = IText(14.0F, textMarkerColor);
 
@@ -48,8 +60,10 @@ class GraphVisualizer : public IControl {
     long counterResetAvoided = 0;
     float* polygonX = (float*)calloc(4000 * 4 + 2, sizeof(float)); //4K width screens should be managed with this
     float* polygonY = (float*)calloc(4000 * 4 + 2, sizeof(float));
-    vector<vector<float>> differencePolygonsX;
-    vector<vector<float>> differencePolygonsY;
+    vector<vector<float>> differenceUpperPolygonsX;
+    vector<vector<float>> differenceUpperPolygonsY;
+    vector<vector<float>> differenceLowerPolygonsX;
+    vector<vector<float>> differenceLowerPolygonsY;
 
   public:
     GraphVisualizer(const IRECT& bounds, UiSetting* setting, FifoMemory* memoryInputPeak, FifoMemory* memoryInputSmoothing, FifoMemory* memorySidechainPeak) :
@@ -93,10 +107,15 @@ class GraphVisualizer : public IControl {
     void drawPolygons(IGraphics& g, int polygonLength) {
       g.FillConvexPolygon(fillColor, polygonX, polygonY, polygonLength);
 
-      for (int i = 0; i < this->differencePolygonsX.size(); i++) {
-        float* arrayX = &differencePolygonsX[i][0]; //magic
-        float* arrayY = &differencePolygonsY[i][0];
-        g.FillConvexPolygon(fillDifferenceColor, arrayX, arrayY, differencePolygonsX[i].size(), 0);
+      for (int i = 0; i < this->differenceUpperPolygonsX.size(); i++) {
+        float* arrayX = &differenceUpperPolygonsX[i][0]; //magic
+        float* arrayY = &differenceUpperPolygonsY[i][0];
+        g.FillConvexPolygon(fillDifferenceUpperColor, arrayX, arrayY, differenceUpperPolygonsX[i].size(), 0);
+      }
+      for (int i = 0; i < this->differenceLowerPolygonsX.size(); i++) {
+        float* arrayX = &differenceLowerPolygonsX[i][0]; //magic
+        float* arrayY = &differenceLowerPolygonsY[i][0];
+        g.FillConvexPolygon(fillDifferenceLowerColor, arrayX, arrayY, differenceLowerPolygonsX[i].size(), 0);
       }
 
       g.DrawConvexPolygon(lineColor, polygonX, polygonY, polygonLength, 0, 1.5);
@@ -122,11 +141,11 @@ class GraphVisualizer : public IControl {
     }
 
     //startColumn has to be the column just before the difference start (where the two graph start to separate)
-    void addDifferencePolygon(IGraphics& g, vector<float> differencePoints, vector<float> originalPoints, int startColumn, float displayFactor) {
+    void addDifferencePolygon(IGraphics& g, int mode, vector<float> differencePoints, vector<float> originalPoints, int startColumn, float displayFactor) {
       const int endColumn = startColumn + originalPoints.size() - 2;
       vector<float> differencePolygonX;
       vector<float> differencePolygonY;
-      /g.DrawLine(COLOR_YELLOW, startColumn * displayFactor, 0, startColumn * displayFactor, 580);
+      //g.DrawLine(COLOR_YELLOW, startColumn * displayFactor, 0, startColumn * displayFactor, 580);
       //g.DrawLine(COLOR_BLUE, endColumn * displayFactor, 0, endColumn * displayFactor, 580);
 
       for (int index = 0; index < differencePoints.size(); index++) {
@@ -138,8 +157,13 @@ class GraphVisualizer : public IControl {
         differencePolygonY.push_back(originalPoints[index]);
       }
 
-      differencePolygonsX.push_back(differencePolygonX);
-      differencePolygonsY.push_back(differencePolygonY);
+      if (mode == 1) {
+        differenceUpperPolygonsX.push_back(differencePolygonX);
+        differenceUpperPolygonsY.push_back(differencePolygonY);
+      } else {
+        differenceLowerPolygonsX.push_back(differencePolygonX);
+        differenceLowerPolygonsY.push_back(differencePolygonY);
+      }
     }
 
     double getInputSmoothY(int index) {
@@ -167,8 +191,11 @@ class GraphVisualizer : public IControl {
       }
 
 
-      differencePolygonsX.clear();
-      differencePolygonsY.clear();
+      differenceUpperPolygonsX.clear();
+      differenceUpperPolygonsY.clear();
+      differenceLowerPolygonsX.clear();
+      differenceLowerPolygonsY.clear();
+
       vector<float> differencePoints;
       vector<float> originalPoints;
       int differenceMode = 0;
@@ -209,13 +236,13 @@ class GraphVisualizer : public IControl {
 
         //difference polygon graph construction
         if (sidechainY < inputY) {
-          if (differenceMode == -1) { //continue negative polygon
+          if (differenceMode == 1) { //continue negative polygon
             differencePoints.push_back(sidechainY);
             originalPoints.push_back(inputY);
           } else {
-            if (differenceMode == 1) { //end positive polygon
+            if (differenceMode == -1) { //end positive polygon
               originalPoints.push_back(inputY);
-              addDifferencePolygon(g, differencePoints, originalPoints, column+2, displayFactor);
+              addDifferencePolygon(g, differenceMode, differencePoints, originalPoints, column+2, displayFactor);
             }
             //create negative polygon
             differencePoints = vector<float>();
@@ -225,16 +252,16 @@ class GraphVisualizer : public IControl {
             originalPoints.push_back(inputY);
           }
 
-          differenceMode = -1;
+          differenceMode = 1;
 
         } else if (sidechainY > inputY) {
-          if (differenceMode == 1) { //continue positive polygon
+          if (differenceMode == -1) { //continue positive polygon
             differencePoints.push_back(sidechainY);
             originalPoints.push_back(inputY);
           } else {
-            if (differenceMode == -1) { //end negative polygon
+            if (differenceMode == 1) { //end negative polygon
               originalPoints.push_back(inputY);
-              addDifferencePolygon(g, differencePoints, originalPoints, column+2, displayFactor);
+              addDifferencePolygon(g, differenceMode, differencePoints, originalPoints, column+2, displayFactor);
             }
             //create positive polygon
             differencePoints = vector<float>();
@@ -243,11 +270,11 @@ class GraphVisualizer : public IControl {
             originalPoints.push_back(polygonY[column+2]);
             originalPoints.push_back(inputY);
           }
-          differenceMode = 1;
+          differenceMode = -1;
 
         } else if (differenceMode != 0) { //end current difference polygon
           originalPoints.push_back(inputY);
-          addDifferencePolygon(g, differencePoints, originalPoints, column+2, displayFactor);
+          addDifferencePolygon(g, differenceMode, differencePoints, originalPoints, column+2, displayFactor);
           differenceMode = 0;
         }
       }
@@ -260,7 +287,7 @@ class GraphVisualizer : public IControl {
 
       if (differenceMode != 0) { //end current difference polygon
         originalPoints.push_back(polygonY[0]);
-        addDifferencePolygon(g, differencePoints, originalPoints, 1, displayFactor);
+        addDifferencePolygon(g, differenceMode, differencePoints, originalPoints, 1, displayFactor);
         differenceMode = 0;
       }
     }
