@@ -22,8 +22,11 @@ namespace converters {
   */
 
   inline static double round(double value, int precision) {
-    auto power = pow(10, precision);
-    return ceil(value * power) / power;
+    double power = pow(10.0, precision);
+    return std::round(value * power) / power;
   };
-
+  inline static float round(float value, int precision) {
+    float power = pow(10.0, precision);
+    return std::round(value * power) / power;
+  };
 }

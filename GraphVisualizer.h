@@ -5,7 +5,9 @@
 #include <string>
 #include <stdlib.h>     /* calloc, exit, free */
 #include <math.h>       /* floor */
-#include <vector> 
+#include <vector>
+#include <iomanip> //number to string, with decimals precision
+#include <sstream> //number to string, with decimals precision
 
 //#include <chrono>
 using namespace std;
@@ -16,6 +18,7 @@ using namespace std;
 #include "UiSetting.h"
 #include "FifoMemory.h"
 #include "Converters.h"
+#include "Measure.h"
 
 using namespace converters;
 using namespace iplug;
@@ -42,6 +45,14 @@ const IColor markerAlternativeColor = IColor(50, 255, 255, 255);
 const IColor backgroundColor = IColor(255, 18, 30, 43);
 const char* DB_LEVELS[] = { "-3", "-6", "-9", "-12", "-15", "-18", "-21", "-24", "-27", "-30", "-33", "-36", "-39", "-42", "-45", "-48", "-51", "-54" };
 const IText TEXT_COMPONENT = IText(14.0F, textMarkerColor);
+
+const IColor thresholdMarkerClickedLineColor = COLOR_YELLOW;
+const IText thresholdMarkerClickedTextComponent = IText(14.0F, thresholdMarkerClickedLineColor);
+const IColor thresholdMarkerOverLineColor = IColor(255, thresholdMarkerClickedLineColor.R * .6, thresholdMarkerClickedLineColor.G * .6, thresholdMarkerClickedLineColor.B * .6);
+const IText thresholdMarkerOverTextComponent = IText(14.0F, thresholdMarkerOverLineColor);
+
+const int textOffset = 20; //space reserved for text at the right of marker lines
+
 
 
 class GraphVisualizer : public IControl {
@@ -70,7 +81,13 @@ class GraphVisualizer : public IControl {
     vector<vector<float>> peakDifferenceLowerPolygonsY;
 
 
-    int mouseThreshold = -1;
+    float thresholdMarkerClicked = -1;
+    string thresholdMarkerClickedText;
+    IRECT thresholdMarkerClickedTextZone;
+
+    float thresholdMarkerOver = -1;
+    string thresholdMarkerOverText;
+    IRECT thresholdMarkerOverTextZone;
 
 
   public:
@@ -116,22 +133,41 @@ class GraphVisualizer : public IControl {
   public:
     //UI input controls
     void OnMouseOver(float x, float y, const IMouseMod& mod) override {
-      mouseThreshold = y;
+      float width = this->mRECT.R;
+
+      thresholdMarkerOver = y;
+      thresholdMarkerOverText = convertYtoDbString(y);
+      thresholdMarkerOverTextZone = IRECT(width - 1.5f * textOffset, y - 6.f, width, y + 6.f);
     }
+
     void OnMouseDown(float x, float y, const IMouseMod& mod) override {
-      mouseThreshold = y;
+      float width = this->mRECT.R;
+
+      thresholdMarkerClicked = y;
+      thresholdMarkerClickedText = convertYtoDbString(y);
+      thresholdMarkerClickedTextZone = IRECT(width - 1.5f * textOffset, y - 6.f, width, y + 6.f);
     }
+
+    string convertYtoDbString(float y) {
+      float top = this->mRECT.T;
+      const float thresholdLevelDb = (y - top) / setting->visualizerHeight * (float)MINIMUM_VOLUME_DB;
+
+      std::stringstream stringStream;
+      stringStream << std::fixed << std::setprecision(1) << thresholdLevelDb;// to_string(thresholdLevelDb);
+
+      return stringStream.str();
+    }
+
 
   private:
     void drawMarkers(IGraphics& g) {
       int top = this->mRECT.T;
       int width = this->mRECT.R;
-      int pixelStep = 55 / 3 * setting->visualizerHeight;
+      int pixelStep = abs(MINIMUM_VOLUME_DB) / 3 * setting->visualizerHeight;
       bool alternate = false;
-      const int textOffset = 20;
 
-      for (int levelDb = -3; levelDb > -55; levelDb -= 3) {
-        int markerY = top - (levelDb / 55.0 * setting->visualizerHeight);
+      for (int levelDb = -3; levelDb > MINIMUM_VOLUME_DB; levelDb -= 3) {
+        int markerY = top + (levelDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
         auto text = DB_LEVELS[-levelDb / 3 - 1];
         IColor lineColor = alternate ? markerAlternativeColor : markerColor;
         alternate = !alternate;
@@ -141,8 +177,16 @@ class GraphVisualizer : public IControl {
         g.DrawLine(lineColor, 0, markerY, width - textOffset, markerY, 0, 1.0f);
       }
 
-      if (mouseThreshold != -1) {
-        g.DrawLine(COLOR_YELLOW, 0, mouseThreshold, width, mouseThreshold, 0, 1.5f);
+      if (thresholdMarkerOver != -1) {
+        g.FillRect(backgroundColor, thresholdMarkerOverTextZone);
+        g.DrawText(thresholdMarkerOverTextComponent, thresholdMarkerOverText.c_str(), IRECT(width - 1.5 * textOffset, thresholdMarkerOver - pixelStep - 2, width, thresholdMarkerOver + pixelStep));
+        g.DrawLine(thresholdMarkerOverLineColor, 0, thresholdMarkerOver, width - 1.5 * textOffset, thresholdMarkerOver, 0, 1.2f);
+      }
+
+      if (thresholdMarkerClicked != -1) {
+        g.FillRect(backgroundColor, thresholdMarkerClickedTextZone);
+        g.DrawText(thresholdMarkerClickedTextComponent, thresholdMarkerClickedText.c_str(), IRECT(width - 1.5 * textOffset, thresholdMarkerClicked - pixelStep - 2, width, thresholdMarkerClicked + pixelStep));
+        g.DrawLine(thresholdMarkerClickedLineColor, 0, thresholdMarkerClicked, width - 1.5 * textOffset, thresholdMarkerClicked, 0, 1.2f);
       }
     }
 
