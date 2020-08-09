@@ -24,8 +24,6 @@ using namespace igraphics;
 
 /** TODO
   Implement RMS difference graph (refactor the main method?)
-  Set a Y level threshold when click
-    mouse management
   Timing metering: get X mouse position, trace vertical line, and trace vertical lines at its right with multiple timing helpers (like a mm/cm ruler)
     mouse management
   Auto Y "Zoom" button with two states: (1) automatic Y scaling, (2) full Y scale (switch from one to other)

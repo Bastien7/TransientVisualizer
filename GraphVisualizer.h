@@ -53,6 +53,9 @@ const IText thresholdMarkerOverTextComponent = IText(14.0F, thresholdMarkerOverL
 
 const int textOffset = 20; //space reserved for text at the right of marker lines
 
+vector<float> TIME_INDICATORS = vector<float>({ 25, 50, 100, 150, 300, 500, 1000 });
+const char* TIME_INDICATORS_TEXT[] = { "25", "50", "100", "150", "300", "500", "1s", "2s" };
+
 
 
 class GraphVisualizer : public IControl {
@@ -81,6 +84,8 @@ class GraphVisualizer : public IControl {
     vector<vector<float>> peakDifferenceLowerPolygonsY;
 
 
+    bool mouseIn = false;
+
     float thresholdMarkerClicked = -1;
     string thresholdMarkerClickedText;
     IRECT thresholdMarkerClickedTextZone;
@@ -88,6 +93,8 @@ class GraphVisualizer : public IControl {
     float thresholdMarkerOver = -1;
     string thresholdMarkerOverText;
     IRECT thresholdMarkerOverTextZone;
+
+    float timeIndicatorStartX = -1;
 
 
   public:
@@ -111,7 +118,9 @@ class GraphVisualizer : public IControl {
         SetDirty(false);
 
         drawPeakChart(g, width + 2);
-        drawMarkers(g);
+        drawFixedMarkers(g);
+        drawThresholdIndicators(g);
+        drawTimeIndicators(g, displayFactor);
 
         counterResetAvoided++;
         return;
@@ -119,7 +128,9 @@ class GraphVisualizer : public IControl {
         SetDirty(true);
         resetPolygonPositions(g, width, displayFactor, memoryInputPeak);
         drawPeakChart(g, width + 2);
-        drawMarkers(g);
+        drawFixedMarkers(g);
+        drawThresholdIndicators(g);
+        drawTimeIndicators(g, displayFactor);
 
         previousMemoryIterator = this->memoryInputSmoothing->currentIterator;
         previousDisplayFactor = displayFactor;
@@ -133,19 +144,30 @@ class GraphVisualizer : public IControl {
   public:
     //UI input controls
     void OnMouseOver(float x, float y, const IMouseMod& mod) override {
+      mouseIn = true;
       float width = this->mRECT.R;
 
-      thresholdMarkerOver = y;
-      thresholdMarkerOverText = convertYtoDbString(y);
-      thresholdMarkerOverTextZone = IRECT(width - 1.5f * textOffset, y - 6.f, width, y + 6.f);
+      if (thresholdMarkerOver != y) {
+        thresholdMarkerOver = y;
+        thresholdMarkerOverText = convertYtoDbString(y);
+        thresholdMarkerOverTextZone = IRECT(width - 1.4f * textOffset, y - 6.f, width, y + 6.f);
+      }
+
+      timeIndicatorStartX = x;
     }
 
     void OnMouseDown(float x, float y, const IMouseMod& mod) override {
       float width = this->mRECT.R;
 
-      thresholdMarkerClicked = y;
-      thresholdMarkerClickedText = convertYtoDbString(y);
-      thresholdMarkerClickedTextZone = IRECT(width - 1.5f * textOffset, y - 6.f, width, y + 6.f);
+      if (thresholdMarkerClicked != y) {
+        thresholdMarkerClicked = y;
+        thresholdMarkerClickedText = convertYtoDbString(y);
+        thresholdMarkerClickedTextZone = IRECT(width - 1.4f * textOffset, y - 6.f, width, y + 6.f);
+      }
+    }
+
+    void OnMouseOut() override {
+      mouseIn = false;
     }
 
     string convertYtoDbString(float y) {
@@ -160,9 +182,9 @@ class GraphVisualizer : public IControl {
 
 
   private:
-    void drawMarkers(IGraphics& g) {
-      int top = this->mRECT.T;
-      int width = this->mRECT.R;
+    void drawFixedMarkers(IGraphics& g) {
+      const float top = this->mRECT.T;
+      const float width = this->mRECT.R;
       int pixelStep = abs(MINIMUM_VOLUME_DB) / 3 * setting->visualizerHeight;
       bool alternate = false;
 
@@ -177,16 +199,48 @@ class GraphVisualizer : public IControl {
         g.DrawLine(lineColor, 0, markerY, width - textOffset, markerY, 0, 1.0f);
       }
 
-      if (thresholdMarkerOver != -1) {
+    }
+
+    void drawThresholdIndicators(IGraphics& g) {
+      const float width = this->mRECT.R;
+      const float pixelStep = abs(MINIMUM_VOLUME_DB) / 3 * setting->visualizerHeight;
+
+      if (mouseIn && thresholdMarkerOver != -1) {
         g.FillRect(backgroundColor, thresholdMarkerOverTextZone);
-        g.DrawText(thresholdMarkerOverTextComponent, thresholdMarkerOverText.c_str(), IRECT(width - 1.5 * textOffset, thresholdMarkerOver - pixelStep - 2, width, thresholdMarkerOver + pixelStep));
-        g.DrawLine(thresholdMarkerOverLineColor, 0, thresholdMarkerOver, width - 1.5 * textOffset, thresholdMarkerOver, 0, 1.2f);
+        g.DrawText(thresholdMarkerOverTextComponent, thresholdMarkerOverText.c_str(), IRECT(width - 1.4 * textOffset, thresholdMarkerOver - pixelStep - 2, width, thresholdMarkerOver + pixelStep));
+        g.DrawLine(thresholdMarkerOverLineColor, 0, thresholdMarkerOver, width - 1.4 * textOffset, thresholdMarkerOver, 0, 1.2f);
       }
 
       if (thresholdMarkerClicked != -1) {
         g.FillRect(backgroundColor, thresholdMarkerClickedTextZone);
-        g.DrawText(thresholdMarkerClickedTextComponent, thresholdMarkerClickedText.c_str(), IRECT(width - 1.5 * textOffset, thresholdMarkerClicked - pixelStep - 2, width, thresholdMarkerClicked + pixelStep));
-        g.DrawLine(thresholdMarkerClickedLineColor, 0, thresholdMarkerClicked, width - 1.5 * textOffset, thresholdMarkerClicked, 0, 1.2f);
+        g.DrawText(thresholdMarkerClickedTextComponent, thresholdMarkerClickedText.c_str(), IRECT(width - 1.4 * textOffset, thresholdMarkerClicked - pixelStep - 2, width, thresholdMarkerClicked + pixelStep));
+        g.DrawLine(thresholdMarkerClickedLineColor, 0, thresholdMarkerClicked, width - 1.4 * textOffset, thresholdMarkerClicked, 0, 1.2f);
+      }
+    }
+
+    void drawTimeIndicators(IGraphics& g, float displayFactor) {
+      if (mouseIn) {
+        float width = this->mRECT.R;
+        float top = this->mRECT.T;
+        float bottom = this->mRECT.B;
+
+        const float pixelPerMs = 1.f / 5.f * displayFactor; //1 pixel == 5ms by this plugin definition (at zoom x1)
+
+        g.DrawLine(thresholdMarkerOverLineColor, timeIndicatorStartX, top, timeIndicatorStartX, bottom, 0, 1.f);
+        const int indicatorsCount = TIME_INDICATORS.size();
+
+        for (int i = 0; i < indicatorsCount; i++) {
+          float x = timeIndicatorStartX + TIME_INDICATORS[i] * pixelPerMs;
+          g.DrawLine(markerAlternativeColor, x, top, x, bottom, 0, .7f);
+
+          const float textLeftPadding = 1.f;
+          const float textBottomPadding = 10.f;
+          const float textWidth = 20.f;// +(i > 1 && i < 6 ? 5.f : 0.f); //for case where "ms" or "s" is not displayed
+
+          if (i < indicatorsCount-1 && x + textWidth + 1 < timeIndicatorStartX + TIME_INDICATORS[i + 1] * pixelPerMs) {
+            g.DrawText(TEXT_COMPONENT.WithAlign(EAlign::Near), TIME_INDICATORS_TEXT[i], IRECT(x + textLeftPadding, bottom - textBottomPadding, x + textLeftPadding + textWidth, bottom));
+          }
+        }
       }
     }
 
