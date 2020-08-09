@@ -9,5 +9,6 @@ class UiSetting {
   public:
     float zoom = 1;
     float smooth = 0;
+    int detectionMode = 0;
     int visualizerHeight = 1;
 };

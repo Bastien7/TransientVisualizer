@@ -12,12 +12,14 @@ namespace converters {
     return convertRatioToDbGain(ratio);// +5; //I don't yet know why it's needed... Maybe because of a specific signal level referential?
   };
 
+  /* not yet used
   inline static double convertDbGainToRatio(double gain) {
     return pow(10, gain / 20);
   };
   inline static double convertDbLevelToRatio(double gain) {
-    return convertDbGainToRatio(gain /*- 5*/);
+    return convertDbGainToRatio(gain ); //- 5);
   };
+  */
 
   inline static double round(double value, int precision) {
     auto power = pow(10, precision);

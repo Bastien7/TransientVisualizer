@@ -28,14 +28,18 @@ double inputGeneratorValue = .01;
 TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info, MakeConfig(kNumParams, kNumPresets)),
     memoryInputSmoothing(new FifoMemory(MAX_MEMORY_SIZE, -1)),
     memoryInputPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)),
-    memorySidechainPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)) {
+    memorySidechainPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)),
+    memorySidechainSmoothing(new FifoMemory(MAX_MEMORY_SIZE, -1)),
+    memoryInputRms(new FifoMemory(MAX_MEMORY_SIZE, -1)),
+    memorySidechainRms(new FifoMemory(MAX_MEMORY_SIZE, -1))
+{
 
-  GetParam(kZoom)->InitDouble("Zoom", 100, 25, 1000, 1, "%", 0, "", IParam::ShapePowCurve(3));
-  GetParam(kSmooth)->InitDouble("Smooth", 40, 0, 100.0, 1, "%", 0, "", IParam::ShapePowCurve(.5), IParam::kUnitPercentage);
-  GetParam(kModeScrolling)->InitEnum("Scrolling mode", 1, 2, "", IParam::kFlagsNone, "", "Stop on silence", "Never stop");
+  GetParam(zoomParameter)->InitDouble("Zoom", 100, 25, 1000, 1, "%", 0, "", IParam::ShapePowCurve(3));
+  GetParam(smoothParameter)->InitDouble("Smooth", 40, 0, 100, 1, "%", 0, "", IParam::ShapePowCurve(.5), IParam::kUnitPercentage);
+  GetParam(scrollingModeParameter)->InitEnum("Scrolling", 1, 2, "", IParam::kFlagsNone, "", "Stop on silence", "Never stop");
+  GetParam(detectionModeParameter)->InitEnum("Detection", 0, 3, "", IParam::kFlagsNone, "", "Peak", "RMS", "Peak & RMS");
   this->setting = new UiSetting();
 
-  //#if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, 950, GRAPH_HEIGHT * 4/3, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
   };
@@ -50,24 +54,25 @@ TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info
     auto lowerPart = IRECT(b.L, b.T + b.H() / 4, b.R, b.B);
 
     //pGraphics->AttachControl(new ITextControl(upperPart.GetMidVPadded(50), "Hello Mouth!", IText(50)));
-    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.18", IText(20)));
+    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.19", IText(20)));
     //pGraphics->AttachControl(text1);
     //pGraphics->AttachControl(text2);
-    pGraphics->AttachControl(new IVKnobControl(upperPart.GetFromRight(120), kZoom));
-    pGraphics->AttachControl(new IVKnobControl(upperPart.GetReducedFromRight(120).GetFromRight(120), kSmooth));
-    pGraphics->AttachControl(new IVSwitchControl(upperPart.GetFromLeft(120), kModeScrolling, "Scrolling mode", DEFAULT_STYLE), 3);
+    pGraphics->AttachControl(new IVKnobControl(upperPart.GetFromRight(120), zoomParameter));
+    pGraphics->AttachControl(new IVKnobControl(upperPart.GetReducedFromRight(120).GetFromRight(120), smoothParameter));
+    pGraphics->AttachControl(new IVSwitchControl(upperPart.GetFromLeft(120).GetVPadded(-40).GetVShifted(-35), scrollingModeParameter, "Scrolling", DEFAULT_STYLE));
+    pGraphics->AttachControl(new IVSwitchControl(upperPart.GetFromLeft(120).GetVPadded(-40).GetVShifted(35), detectionModeParameter, "Detection", DEFAULT_STYLE));
 
-    pGraphics->AttachControl(new GraphVisualizer(lowerPart, setting, this->memoryInputPeak, this->memoryInputSmoothing, this->memorySidechainPeak));
+    pGraphics->AttachControl(new GraphVisualizer(lowerPart, setting, memoryInputPeak, memoryInputSmoothing, memorySidechainPeak, memorySidechainSmoothing, memoryInputRms, memorySidechainRms));
   };
-  //#endif
 }
 
-//#if IPLUG_DSP
 void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nFrames) {
-  this->setting->zoom = GetParam(kZoom)->Value() / 100.;
-  this->setting->smooth = round(GetParam(kSmooth)->Value()) / 100;
+  this->setting->zoom = GetParam(zoomParameter)->Value() / 100.;
+  this->setting->smooth = round(GetParam(smoothParameter)->Value()) / 100;
+  this->setting->detectionMode = GetParam(detectionModeParameter)->Value();
   const int nChans = NOutChansConnected();
   const int sampleRate = GetSampleRate();
+  const float proportionDbScreenHeight = 1 / MINIMUM_VOLUME_DB * setting->visualizerHeight;
 
   for (int sampleIndex = 0; sampleIndex < nFrames; sampleIndex++) {
     double level = -1;
@@ -77,114 +82,91 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
       double left = inputs[0][sampleIndex];
       double right = inputs[1][sampleIndex];
       //level = (abs(left) + abs(right)) / 2;
-      level = abs(left);
-      sidechainLevel = abs(right);
+      level = abs(left/2); //workaround, waiting for true sidechain channels. Divide by 2 because left and right are on the same input channel.
+      sidechainLevel = abs(right/2);
     //}
-    
-    /*if (inputGeneratorCounter >= sampleRate/2) {
-      inputGeneratorCounter = 0;
-      if (inputGeneratorValue == .2) {
-        inputGeneratorValue = .01;
-      } else if (inputGeneratorValue == .01) {
-        inputGeneratorValue = 0;
-      } else inputGeneratorValue = .2;
-    }
 
-    level = inputGeneratorValue;
-    inputGeneratorCounter++;
-    */
-    //level = inputGeneratorCounter / 60000.0;
-    //if(inputGeneratorCounter > 0) inputGeneratorCounter--;
-    
-    /*
-    if (IsChannelConnected(ERoute::kInput, 2) && IsChannelConnected(ERoute::kInput, 3)) { //TODO see how to optimize this to not call it each time
-      if(!connected)
-        text1->SetStr("Sidechain connected");
-      connected = true;
-      double sidechainLeft = inputs[2][sampleIndex];
-      double sidechainRight = inputs[3][sampleIndex];
-      sidechainLevel = (abs(sidechainLeft) + abs(sidechainRight)) / 2;
-    } else {
-      if(connected)
-        text1->SetStr("Sidechain not connected");
-      connected = false;
-    }*/
 
-    
+
     for (int channelIndex = 0; channelIndex < nChans; channelIndex++) {
       outputs[channelIndex][sampleIndex] = inputs[channelIndex][sampleIndex];
     }
 
-    bool autoScroll = GetParam(kModeScrolling)->Value() == 1;
-    
-    measurePeak1.learnNewLevel(level, !autoScroll);
-    measurePeak2.learnNewLevel(level, !autoScroll);
-    measurePeak3.learnNewLevel(level, !autoScroll);
-    measurePeak4.learnNewLevel(level, !autoScroll);
-    measurePeak5.learnNewLevel(level, !autoScroll);
+    bool autoScroll = GetParam(scrollingModeParameter)->Value() == 1;
 
-    measureSidechainPeak1.learnNewLevel(sidechainLevel, !autoScroll);
+    measureInputPeak.learnNewLevel(level, !autoScroll);
+    measureInputSmooth.learnNewLevel(level, !autoScroll);
 
-    if (measurePeak1.count >= sampleRate / 200) {
-      double inputVolumePeakDb = convertRmsToDb(measurePeak1.max);
+    measureSidechainPeak.learnNewLevel(sidechainLevel, !autoScroll);
+    measureSidechainSmooth.learnNewLevel(sidechainLevel, !autoScroll);
 
-      if (inputVolumePeakDb < -6000) {
-        if (measurePeak1.count > 0) { //only reset if needed
-          measurePeak1.resetSample();
-          measurePeak2.resetSample();
-          measurePeak3.resetSample();
-          measurePeak4.resetSample();
-          measurePeak5.resetSample();
-          measureSidechainPeak1.resetSample();
+    measureInputRms.learnNewLevel(level, !autoScroll);
+    measureSidechainRms.learnNewLevel(sidechainLevel, !autoScroll);
+
+
+    if (measureInputPeak.needReset(sampleRate / 200)) {
+      //PEAK
+      double inputVolumePeakDb = convertRmsToDb(measureInputPeak.getResult());
+
+      if (inputVolumePeakDb < -6000) { //protection
+        if (measureInputPeak.getCount() > 0) { //only reset if needed
+          measureInputPeak.resetSample();
+          measureInputSmooth.resetSample();
+          measureSidechainPeak.resetSample();
+          measureSidechainSmooth.resetSample();
+          measureInputRms.resetSample();
+          measureSidechainRms.resetSample();
         }
 
         memoryInputPeak->addValue(setting->visualizerHeight);
         memoryInputSmoothing->addValue(setting->visualizerHeight);
         memorySidechainPeak->addValue(setting->visualizerHeight);
+        memorySidechainSmoothing->addValue(setting->visualizerHeight);
+        memoryInputRms->addValue(setting->visualizerHeight);
+        memorySidechainRms->addValue(setting->visualizerHeight);
 
         return;
       }
 
-      memoryInputPeak->addValue(inputVolumePeakDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
+      //input memory
+      memoryInputPeak->addValue(inputVolumePeakDb * proportionDbScreenHeight);
 
-      double smoothingValue = (measurePeak2.max + measurePeak3.max + measurePeak4.max + measurePeak5.max) / 4;
-      if (smoothingValue == 0) { smoothingValue = 1; }
-      measureRatioPeakSmoothing.learnNewLevel(max(smoothingValue, measurePeak1.max) / smoothingValue);
+      double inputSmoothingValue = measureInputSmooth.getResult();
+      if (inputSmoothingValue == 0) { inputSmoothingValue = 1; }
+      measureInputPeakSmoothingRatio.learnNewLevel(max(inputSmoothingValue, measureInputPeak.getResult()) / inputSmoothingValue);
 
-      double inputVolumeSmoothingDb = convertRmsToDb(measureRatioPeakSmoothing.average * smoothingValue);
-      memoryInputSmoothing->addValue(inputVolumeSmoothingDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
+      double inputVolumeSmoothingDb = convertRmsToDb(measureInputPeakSmoothingRatio.getResult() * inputSmoothingValue);
+      memoryInputSmoothing->addValue(inputVolumeSmoothingDb * proportionDbScreenHeight);
+
+      measureInputSmooth.resetSampleIfNeeded(sampleRate, measureInputPeak.getResult());
+      measureInputPeak.resetSample();
 
 
-      double sidechainVolumePeakDb = /*(inputVolumePeakDb + 2.0 * (-40.0)) / 3.0; */convertRmsToDb(measureSidechainPeak1.max);
-      memorySidechainPeak->addValue(sidechainVolumePeakDb / MINIMUM_VOLUME_DB * setting->visualizerHeight);
+      //sidechain memory
+      double sidechainVolumePeakDb = /*(inputVolumePeakDb + 2.0 * (-40.0)) / 3.0;*/ convertRmsToDb(measureSidechainPeak.getResult());
+      memorySidechainPeak->addValue(sidechainVolumePeakDb * proportionDbScreenHeight);
+
+      double sidechainSmoothingValue = measureSidechainSmooth.getResult();
+      if (sidechainSmoothingValue == 0) { sidechainSmoothingValue = 1; }
+      measureSidechainPeakSmoothingRatio.learnNewLevel(max(sidechainSmoothingValue, measureSidechainPeak.getResult()) / sidechainSmoothingValue);
+
+      double sidechainVolumeSmoothingDb = convertRmsToDb(measureSidechainPeakSmoothingRatio.getResult() * sidechainSmoothingValue);
+      memorySidechainSmoothing->addValue(sidechainVolumeSmoothingDb * proportionDbScreenHeight);
+
+      measureSidechainSmooth.resetSampleIfNeeded(sampleRate, measureSidechainPeak.getResult());
+      measureSidechainPeak.resetSample();
 
 
-      if (measurePeak2.count >= sampleRate / 10) {
-        measurePeak2.resetSample();
-        measurePeak2.learnNewLevel(measurePeak1.max);
-      }
-      if (measurePeak3.count >= sampleRate / 20) {
-        measurePeak3.resetSample();
-        measurePeak3.learnNewLevel(measurePeak1.max);
-      }
-      if (measurePeak4.count >= sampleRate / 40) {
-        measurePeak4.resetSample();
-        measurePeak4.learnNewLevel(measurePeak1.max);
-      }
-      if (measurePeak5.count >= sampleRate / 80) {
-        measurePeak5.resetSample();
-        measurePeak5.learnNewLevel(measurePeak1.max);
-      }
+      //RMS
+      double inputVolumeRmsDb = convertRmsToDb(measureInputRms.getResult());
+      double sidechainVolumeRmsDb = convertRmsToDb(measureSidechainRms.getResult());
 
-      measurePeak1.resetSample();
-      measureSidechainPeak1.resetSample();
+      memoryInputRms->addValue(inputVolumeRmsDb * proportionDbScreenHeight);
+      measureInputRms.resetSampleIfNeeded(sampleRate);
+      memorySidechainRms->addValue(sidechainVolumeRmsDb * proportionDbScreenHeight);
+      measureSidechainRms.resetSampleIfNeeded(sampleRate);
     }
 
-    if (measureRatioPeakSmoothing.count >= sampleRate / 10) {
-      const double oldRatioAverage = measureRatioPeakSmoothing.average;
-      measureRatioPeakSmoothing.resetSample();
-      measureRatioPeakSmoothing.learnNewLevel(oldRatioAverage);
-    }
+    measureInputPeakSmoothingRatio.resetSampleIfNeeded(sampleRate / 10);
   }
 }
-//#endif
