@@ -83,6 +83,11 @@ class GraphVisualizer : public IControl {
     vector<vector<float>> peakDifferenceLowerPolygonsX;
     vector<vector<float>> peakDifferenceLowerPolygonsY;
 
+    vector<vector<float>> rmsDifferenceUpperPolygonsX;
+    vector<vector<float>> rmsDifferenceUpperPolygonsY;
+    vector<vector<float>> rmsDifferenceLowerPolygonsX;
+    vector<vector<float>> rmsDifferenceLowerPolygonsY;
+
 
     bool mouseIn = false;
 
@@ -263,16 +268,16 @@ class GraphVisualizer : public IControl {
       } else if (setting->detectionMode == 1) {
         g.FillConvexPolygon(rmsFillColor, polygonX, polygonRmsY, polygonLength);
 
-        /*for (int i = 0; i < this->peakDifferenceUpperPolygonsX.size(); i++) {
-          float* arrayX = &peakDifferenceUpperPolygonsX[i][0]; //magic
-          float* arrayY = &peakDifferenceUpperPolygonsY[i][0];
-          g.FillConvexPolygon(fillDifferenceUpperColor, arrayX, arrayY, peakDifferenceUpperPolygonsX[i].size());
+        for (int i = 0; i < this->rmsDifferenceUpperPolygonsX.size(); i++) {
+          float* arrayX = &rmsDifferenceUpperPolygonsX[i][0]; //magic
+          float* arrayY = &rmsDifferenceUpperPolygonsY[i][0];
+          g.FillConvexPolygon(fillDifferenceUpperColor, arrayX, arrayY, rmsDifferenceUpperPolygonsX[i].size());
         }
-        for (int i = 0; i < this->peakDifferenceLowerPolygonsX.size(); i++) {
-          float* arrayX = &peakDifferenceLowerPolygonsX[i][0]; //magic
-          float* arrayY = &peakDifferenceLowerPolygonsY[i][0];
-          g.FillConvexPolygon(fillDifferenceLowerColor, arrayX, arrayY, peakDifferenceLowerPolygonsX[i].size());
-        }*/
+        for (int i = 0; i < this->rmsDifferenceLowerPolygonsX.size(); i++) {
+          float* arrayX = &rmsDifferenceLowerPolygonsX[i][0]; //magic
+          float* arrayY = &rmsDifferenceLowerPolygonsY[i][0];
+          g.FillConvexPolygon(fillDifferenceLowerColor, arrayX, arrayY, rmsDifferenceLowerPolygonsX[i].size());
+        }
 
         g.DrawConvexPolygon(rmsLineColor, polygonX, polygonRmsY, polygonLength, 0, 1.5);
       } else {
@@ -282,7 +287,11 @@ class GraphVisualizer : public IControl {
     }
 
     //startColumn has to be the column just before the difference start (where the two graph start to separate)
-    void addPeakDifferencePolygon(IGraphics& g, int mode, vector<float> differencePoints, vector<float> originalPoints, int startColumn, float displayFactor) {
+    static void addDifferencePolygon(
+      vector<vector<float>> &differenceUpperPolygonsX, vector<vector<float>> &differenceUpperPolygonsY,
+      vector<vector<float>> &differenceLowerPolygonsX, vector<vector<float>> &differenceLowerPolygonsY,
+      vector<float> &differencePoints, vector<float> &originalPoints, int differenceMode, int startColumn, float displayFactor
+    ) {
       const int endColumn = startColumn + originalPoints.size() - 2;
       vector<float> differencePolygonX;
       vector<float> differencePolygonY;
@@ -298,12 +307,63 @@ class GraphVisualizer : public IControl {
         differencePolygonY.push_back(originalPoints[index]);
       }
 
-      if (mode == 1) {
-        peakDifferenceUpperPolygonsX.push_back(differencePolygonX);
-        peakDifferenceUpperPolygonsY.push_back(differencePolygonY);
+      if (differenceMode == 1) {
+        differenceUpperPolygonsX.push_back(differencePolygonX);
+        differenceUpperPolygonsY.push_back(differencePolygonY);
       } else {
-        peakDifferenceLowerPolygonsX.push_back(differencePolygonX);
-        peakDifferenceLowerPolygonsY.push_back(differencePolygonY);
+        differenceLowerPolygonsX.push_back(differencePolygonX);
+        differenceLowerPolygonsY.push_back(differencePolygonY);
+      }
+    }
+
+    static void manageDifferencePolygon(
+      vector<vector<float>> &differenceUpperPolygonsX, vector<vector<float>> &differenceUpperPolygonsY,
+      vector<vector<float>> &differenceLowerPolygonsX, vector<vector<float>> &differenceLowerPolygonsY,
+      vector<float> &differencePoints, vector<float> &originalPoints, float* polygonY,
+      double inputY, double sidechainY, int &differenceMode, int column, float displayFactor
+    ) {
+      if (sidechainY < inputY) {
+        if (differenceMode == 1) { //continue negative polygon
+          differencePoints.push_back(sidechainY);
+          originalPoints.push_back(inputY);
+        }
+        else {
+          if (differenceMode == -1) { //end positive polygon
+            originalPoints.push_back(inputY);
+            addDifferencePolygon(differenceUpperPolygonsX, differenceUpperPolygonsY, differenceLowerPolygonsX, differenceLowerPolygonsY, differencePoints, originalPoints, differenceMode, column + 2, displayFactor);
+          }
+          //create negative polygon
+          differencePoints = vector<float>();
+          differencePoints.push_back(sidechainY);
+          originalPoints = vector<float>();
+          originalPoints.push_back(polygonY[column + 2]);
+          originalPoints.push_back(inputY);
+        }
+
+        differenceMode = 1;
+
+      } else if (sidechainY > inputY) {
+        if (differenceMode == -1) { //continue positive polygon
+          differencePoints.push_back(sidechainY);
+          originalPoints.push_back(inputY);
+        } else {
+          if (differenceMode == 1) { //end negative polygon
+            originalPoints.push_back(inputY);
+            addDifferencePolygon(differenceUpperPolygonsX, differenceUpperPolygonsY, differenceLowerPolygonsX, differenceLowerPolygonsY, differencePoints, originalPoints, differenceMode, column + 2, displayFactor);
+          }
+          //create positive polygon
+          differencePoints = vector<float>();
+          differencePoints.push_back(sidechainY);
+          originalPoints = vector<float>();
+          originalPoints.push_back(polygonY[column + 2]);
+          originalPoints.push_back(inputY);
+        }
+
+        differenceMode = -1;
+      } else if (differenceMode != 0) { //end current difference polygon
+        originalPoints.push_back(inputY);
+        addDifferencePolygon(differenceUpperPolygonsX, differenceUpperPolygonsY, differenceLowerPolygonsX, differenceLowerPolygonsY, differencePoints, originalPoints, differenceMode, column + 2, displayFactor);
+        differenceMode = 0;
       }
     }
 
@@ -327,9 +387,16 @@ class GraphVisualizer : public IControl {
       peakDifferenceLowerPolygonsX.clear();
       peakDifferenceLowerPolygonsY.clear();
 
-      vector<float> differencePoints;
-      vector<float> originalPoints;
-      int differenceMode = 0;
+      rmsDifferenceUpperPolygonsX.clear();
+      rmsDifferenceUpperPolygonsY.clear();
+      rmsDifferenceLowerPolygonsX.clear();
+      rmsDifferenceLowerPolygonsY.clear();
+
+      vector<float> peakDifferencePoints;
+      vector<float> peakOriginalPoints;
+      vector<float> rmsDifferencePoints;
+      vector<float> rmsOriginalPoints;
+      int peakDifferenceMode = 0, rmsDifferenceMode = 0;
 
       //instantiate all polygon data points
       for (int column = width; column >= 0; column--) {
@@ -339,65 +406,19 @@ class GraphVisualizer : public IControl {
           dataIndex += mainMemory->size - 1;
         }
 
-        float inputY, sidechainY;
-
-        if (setting->detectionMode == 0) {
-          inputY = getYPeakValue(memoryInputPeak, memoryInputSmoothing, dataIndex, top, bottom);
-          sidechainY = getYPeakValue(memorySidechainPeak, memorySidechainSmoothing, dataIndex, top, bottom);;
-        } else {
-          inputY = getYRmsValue(memoryInputRms, dataIndex, top, bottom);
-          sidechainY = getYRmsValue(memorySidechainRms, dataIndex, top, bottom);
-        }
+        float peakInputY = getYPeakValue(memoryInputPeak, memoryInputSmoothing, dataIndex, top, bottom);
+        float peakSidechainY = getYPeakValue(memorySidechainPeak, memorySidechainSmoothing, dataIndex, top, bottom);;
+        float rmsInputY = getYRmsValue(memoryInputRms, dataIndex, top, bottom);
+        float rmsSidechainY = getYRmsValue(memorySidechainRms, dataIndex, top, bottom);
 
         polygonX[column + 1] = column * displayFactor;
         polygonPeakY[column + 1] = getYPeakValue(memoryInputPeak, memoryInputSmoothing, dataIndex, top, bottom);
         polygonRmsY[column + 1] = getYRmsValue(memoryInputRms, dataIndex, top, bottom);
 
         //difference polygon graph construction
-        if (sidechainY < inputY) {
-          if (differenceMode == 1) { //continue negative polygon
-            differencePoints.push_back(sidechainY);
-            originalPoints.push_back(inputY);
-          } else {
-            if (differenceMode == -1) { //end positive polygon
-              originalPoints.push_back(inputY);
-              addPeakDifferencePolygon(g, differenceMode, differencePoints, originalPoints, column+2, displayFactor);
-            }
-            //create negative polygon
-            differencePoints = vector<float>();
-            differencePoints.push_back(sidechainY);
-            originalPoints = vector<float>();
-            originalPoints.push_back(polygonPeakY[column+2]);
-            originalPoints.push_back(inputY);
-          }
-
-          differenceMode = 1;
-
-        } else if (sidechainY > inputY) {
-          if (differenceMode == -1) { //continue positive polygon
-            differencePoints.push_back(sidechainY);
-            originalPoints.push_back(inputY);
-          } else {
-            if (differenceMode == 1) { //end negative polygon
-              originalPoints.push_back(inputY);
-              addPeakDifferencePolygon(g, differenceMode, differencePoints, originalPoints, column+2, displayFactor);
-            }
-            //create positive polygon
-            differencePoints = vector<float>();
-            differencePoints.push_back(sidechainY);
-            originalPoints = vector<float>();
-            originalPoints.push_back(polygonPeakY[column+2]);
-            originalPoints.push_back(inputY);
-          }
-          differenceMode = -1;
-
-        } else if (differenceMode != 0) { //end current difference polygon
-          originalPoints.push_back(inputY);
-          addPeakDifferencePolygon(g, differenceMode, differencePoints, originalPoints, column+2, displayFactor);
-          differenceMode = 0;
-        }
+        manageDifferencePolygon(peakDifferenceUpperPolygonsX, peakDifferenceUpperPolygonsY, peakDifferenceLowerPolygonsX, peakDifferenceLowerPolygonsY, peakDifferencePoints, peakOriginalPoints, polygonPeakY, peakInputY, peakSidechainY, peakDifferenceMode, column, displayFactor);
+        manageDifferencePolygon(rmsDifferenceUpperPolygonsX, rmsDifferenceUpperPolygonsY, rmsDifferenceLowerPolygonsX, rmsDifferenceLowerPolygonsY, rmsDifferencePoints, rmsOriginalPoints, polygonRmsY, rmsInputY, rmsSidechainY, rmsDifferenceMode, column, displayFactor);
       }
-
       //set tup first and last polygon point, so that they invisibly join under the screen
       polygonX[0] = 0;
       polygonPeakY[0] = bottom + 1;
@@ -406,11 +427,17 @@ class GraphVisualizer : public IControl {
       polygonPeakY[polygonLength - 1] = bottom + 1;
       polygonRmsY[polygonLength - 1] = bottom + 1;
 
-      if (differenceMode != 0) { //end current difference polygon
-        originalPoints.push_back(polygonPeakY[0]);
-        addPeakDifferencePolygon(g, differenceMode, differencePoints, originalPoints, 1, displayFactor);
-        differenceMode = 0;
+      if (peakDifferenceMode != 0) { //end current difference polygon
+        peakOriginalPoints.push_back(polygonPeakY[0]);
+        addDifferencePolygon(peakDifferenceUpperPolygonsX, peakDifferenceUpperPolygonsY, peakDifferenceLowerPolygonsX, peakDifferenceLowerPolygonsY, peakDifferencePoints, peakOriginalPoints, peakDifferenceMode, 1, displayFactor);
+        peakDifferenceMode = 0;
       }
+      if (rmsDifferenceMode != 0) { //end current difference polygon
+        rmsOriginalPoints.push_back(polygonRmsY[0]);
+        addDifferencePolygon(rmsDifferenceUpperPolygonsX, rmsDifferenceUpperPolygonsY, rmsDifferenceLowerPolygonsX, rmsDifferenceLowerPolygonsY, rmsDifferencePoints, rmsOriginalPoints, rmsDifferenceMode, 1, displayFactor);
+        rmsDifferenceMode = 0;
+      }
+
     }
 
 

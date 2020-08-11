@@ -82,7 +82,7 @@ class MeasureAverageContinuous {
   FifoMemory memory;
 
 public:
-  MeasureAverageContinuous(double sampleRate, int durationTarget /*in ms*/) : memory(FifoMemory(sampleRate / durationTarget, 0)) { }
+  MeasureAverageContinuous(double sampleRate, int durationTarget /*in ms*/, double defaultValue = 0.) : memory(FifoMemory(sampleRate / durationTarget, defaultValue)) { }
 
   inline double getResult() {
     return average;

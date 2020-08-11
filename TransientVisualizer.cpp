@@ -28,10 +28,10 @@ double inputGeneratorValue = .01;
 TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info, MakeConfig(kNumParams, kNumPresets)),
     memoryInputSmoothing(new FifoMemory(MAX_MEMORY_SIZE, -1)),
     memoryInputPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)),
-    //measureInputPeakSmoothingRatio(MeasureAverageContinuous(GetSampleRate(), 10)),
+    //measureInputPeakSmoothingRatio(MeasureAverageContinuous(GetSampleRate(), 10, 1)),
     memorySidechainPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)),
     memorySidechainSmoothing(new FifoMemory(MAX_MEMORY_SIZE, -1)),
-    //measureSidechainPeakSmoothingRatio(MeasureAverageContinuous(GetSampleRate(), 10)),
+    //measureSidechainPeakSmoothingRatio(MeasureAverageContinuous(GetSampleRate(), 10, 1)),
     memoryInputRms(new FifoMemory(MAX_MEMORY_SIZE, -1)),
     memorySidechainRms(new FifoMemory(MAX_MEMORY_SIZE, -1)),
     measureInputRms(MeasureGroupAverage({ 20, 10, 5, 3 }, GetSampleRate())), // 50/100/200/333 ms
@@ -40,7 +40,7 @@ TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info
 
   GetParam(zoomParameter)->InitDouble("Zoom", 100, 25, 1000, 1, "%", 0, "", IParam::ShapePowCurve(3));
   GetParam(smoothParameter)->InitDouble("Smooth", 40, 0, 100, 1, "%", 0, "", IParam::ShapePowCurve(.5), IParam::kUnitPercentage);
-  GetParam(scrollingModeParameter)->InitEnum("Scrolling", 1, 2, "", IParam::kFlagsNone, "", "Stop on silence", "Never stop");
+  GetParam(scrollingModeParameter)->InitEnum("Scrolling", 0, 2, "", IParam::kFlagsNone, "", "Stop on silence", "Never stop");
   GetParam(detectionModeParameter)->InitEnum("Detection", 0, 3, "", IParam::kFlagsNone, "", "Peak", "RMS", "Peak & RMS");
   this->setting = new UiSetting();
 
@@ -78,10 +78,11 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
   const int sampleRate = GetSampleRate();
   const float proportionDbScreenHeight = 1 / MINIMUM_VOLUME_DB * setting->visualizerHeight;
 
+
   for (int sampleIndex = 0; sampleIndex < nFrames; sampleIndex++) {
     double level = -1;
     double sidechainLevel = -1.0;
-
+    
     //if (IsChannelConnected(ERoute::kInput, 0) && IsChannelConnected(ERoute::kInput, 1)) { //TODO see how to optimize this to not call it each time
       double left = inputs[0][sampleIndex];
       double right = inputs[1][sampleIndex];
@@ -96,6 +97,7 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
     }
 
     bool autoScroll = GetParam(scrollingModeParameter)->Value() == 1;
+
 
     measureInputPeak.learnNewLevel(level, !autoScroll);
     measureInputSmooth.learnNewLevel(level, !autoScroll);
@@ -134,9 +136,9 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
 
       double inputSmoothingValue = measureInputSmooth.getResult();
       if (inputSmoothingValue == 0) { inputSmoothingValue = 1; }
-      measureInputPeakSmoothingRatio.learnNewLevel(max(inputSmoothingValue, measureInputPeak.getResult()) / inputSmoothingValue);
+      //measureInputPeakSmoothingRatio.learnNewLevel(max(inputSmoothingValue, measureInputPeak.getResult()) / inputSmoothingValue);
 
-      double inputVolumeSmoothingDb = convertRmsToDb(measureInputPeakSmoothingRatio.getResult() * inputSmoothingValue);
+      double inputVolumeSmoothingDb = convertRmsToDb(/*measureInputPeakSmoothingRatio.getResult() **/ inputSmoothingValue);
       memoryInputSmoothing->addValue(inputVolumeSmoothingDb * proportionDbScreenHeight);
 
       measureInputSmooth.resetSampleIfNeeded(sampleRate, measureInputPeak.getResult());
@@ -149,9 +151,9 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
 
       double sidechainSmoothingValue = measureSidechainSmooth.getResult();
       if (sidechainSmoothingValue == 0) { sidechainSmoothingValue = 1; }
-      measureSidechainPeakSmoothingRatio.learnNewLevel(max(sidechainSmoothingValue, measureSidechainPeak.getResult()) / sidechainSmoothingValue);
+      //measureSidechainPeakSmoothingRatio.learnNewLevel(max(sidechainSmoothingValue, measureSidechainPeak.getResult()) / sidechainSmoothingValue);
 
-      double sidechainVolumeSmoothingDb = convertRmsToDb(measureSidechainPeakSmoothingRatio.getResult() * sidechainSmoothingValue);
+      double sidechainVolumeSmoothingDb = convertRmsToDb(/*measureSidechainPeakSmoothingRatio.getResult() **/ sidechainSmoothingValue);
       memorySidechainSmoothing->addValue(sidechainVolumeSmoothingDb * proportionDbScreenHeight);
 
       measureSidechainSmooth.resetSampleIfNeeded(sampleRate, measureSidechainPeak.getResult());

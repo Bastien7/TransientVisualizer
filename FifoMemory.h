@@ -9,7 +9,7 @@ class FifoMemory {
     const int size;
     int currentIterator = 0;
 
-    FifoMemory(const int size, const int defaultValue = 0) : values(new double[size]), size(size) {
+    FifoMemory(const int size, const double defaultValue = 0.) : values(new double[size]), size(size) {
       for (int i = 0; i < size; i++) {
         values[i] = defaultValue;
       }

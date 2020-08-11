@@ -24,7 +24,6 @@ using namespace igraphics;
 
 /** TODO
   //1 improvement: Use FifoMemory instead of average adjustment in MeasureAverageContinuous
-  1 improvement: Move Peak smooth average ratio to direct peak on MeasureAverageContinuous
   5 feature: Implement RMS difference graph (refactor the main method?)
   5 feature: Auto Y "Zoom" button with two states: (1) automatic Y scaling, (2) full Y scale (switch from one to other)
   1 improvement: move onMouseDown threshold set to onMouseUp
@@ -38,6 +37,7 @@ using namespace igraphics;
   5 feature: Improve the attack/release calculator by finding existing graph points and choosing optimized point (90% same abs(P1-P2) value but shorter duration)
   3 improvement: re-implement the dual measure with 50% over-coverage to smooth out Peak smooth measures
   ? fix: try to round/ceil value in case of displayFactor. The goal is to fix graphical issue that occurs with 0 < displayFactor < 1
+  ? fix: check if peakSmoothingRatio could be useful or if they have never been useful (they are currently disabled)
 */
 class TransientVisualizer final : public Plugin {
   private:
@@ -47,13 +47,13 @@ class TransientVisualizer final : public Plugin {
     FifoMemory* memoryInputSmoothing;
     MeasureMax measureInputPeak = MeasureMax();
     MeasureGroupMax measureInputSmooth = MeasureGroupMax({ 10, 20, 40, 80 }); // 12.5/25/50/100 ms
-    MeasureAverage measureInputPeakSmoothingRatio = MeasureAverage();
+    //MeasureAverageContinuous measureInputPeakSmoothingRatio;// = MeasureAverage();
 
     FifoMemory* memorySidechainPeak;
     FifoMemory* memorySidechainSmoothing;
     MeasureMax measureSidechainPeak = MeasureMax();
     MeasureGroupMax measureSidechainSmooth = MeasureGroupMax({ 10, 20, 40, 80 }); // 12.5/25/50/100 ms
-    MeasureAverage measureSidechainPeakSmoothingRatio = MeasureAverage();
+    //MeasureAverage measureSidechainPeakSmoothingRatio = MeasureAverage();
 
     FifoMemory* memoryInputRms;
     MeasureGroupAverage measureInputRms;

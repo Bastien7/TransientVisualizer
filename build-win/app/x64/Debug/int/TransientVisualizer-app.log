@@ -1,5 +1,6 @@
 ﻿  TransientVisualizer.cpp
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\Converters.h(29,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\Measure.h(85,134): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(37,104): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(37,81): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(37,58): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
@@ -9,48 +10,103 @@ C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\G
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(51,171): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(51,131): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(51,91): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(115,17): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(138,40): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(188,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(192,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(197,108): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(197,88): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(199,63): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(199,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(206,58): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(206,29): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(210,99): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(211,80): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(216,105): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(217,86): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(312,18): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(313,18): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(320,34): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(321,33): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(345,89): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(346,101): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(348,65): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(349,73): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(353,105): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(354,80): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(403,32): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(404,31): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(406,48): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(407,47): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(418,50): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(418,32): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(419,53): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(419,31): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(426,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(435,48): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(435,30): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(70,58): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(71,69): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(72,73): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(74,39): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(74,24): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(75,64): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(75,40): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(120,17): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(143,40): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(193,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(197,21): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(202,108): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(202,88): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(204,63): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(204,34): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(211,58): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(211,29): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(215,99): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(216,80): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(221,105): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(222,86): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(327,38): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(328,36): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(332,38): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(337,38): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(340,36): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(347,38): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(348,36): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(351,38): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(356,38): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(359,36): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(364,34): warning C4244: 'argument': conversion from 'double' to 'const _Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(372,18): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(373,18): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(380,34): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(381,33): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(409,97): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(410,109): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(411,72): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(412,80): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(415,105): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(416,80): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(424,32): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(425,31): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(427,48): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(428,47): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(445,50): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(445,32): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(446,53): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(446,31): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(453,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(462,48): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(462,30): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(74,58): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(75,69): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(76,73): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(78,39): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(78,24): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(79,64): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(79,40): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
   TransientVisualizer-app.vcxproj -> C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\app\x64\Debug\TransientVisualizer.exe
   POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
   FORMAT ".exe" 
