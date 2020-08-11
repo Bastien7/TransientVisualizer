@@ -18,7 +18,7 @@ RandomGenerator random{ 0,.01 };
 const int GRAPH_HEIGHT = 435; //px
 const int MAX_MEMORY_SIZE = 6000; //should it be set higher? (in relation to GraphVisualizer constant defined max memory size)
 
-//ITextControl* text1 = new ITextControl(IRECT(200, 0, 300, 200), "test1", IText(30));
+//ITextControl* text1 = new ITextControl(IRECT(200, 0, 300, 200), "test1", IText(20));
 //ITextControl* text2 = new ITextControl(IRECT(200, 30, 300, 230), "test2", IText(30));
 bool connected = true;
 int inputGeneratorCounter = 0;
@@ -28,10 +28,14 @@ double inputGeneratorValue = .01;
 TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info, MakeConfig(kNumParams, kNumPresets)),
     memoryInputSmoothing(new FifoMemory(MAX_MEMORY_SIZE, -1)),
     memoryInputPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)),
+    //measureInputPeakSmoothingRatio(MeasureAverageContinuous(GetSampleRate(), 10)),
     memorySidechainPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)),
     memorySidechainSmoothing(new FifoMemory(MAX_MEMORY_SIZE, -1)),
+    //measureSidechainPeakSmoothingRatio(MeasureAverageContinuous(GetSampleRate(), 10)),
     memoryInputRms(new FifoMemory(MAX_MEMORY_SIZE, -1)),
-    memorySidechainRms(new FifoMemory(MAX_MEMORY_SIZE, -1))
+    memorySidechainRms(new FifoMemory(MAX_MEMORY_SIZE, -1)),
+    measureInputRms(MeasureGroupAverage({ 20, 10, 5, 3 }, GetSampleRate())), // 50/100/200/333 ms
+    measureSidechainRms(MeasureGroupAverage({ 20, 10, 5, 3 }, GetSampleRate())) // 50/100/200/333 ms
 {
 
   GetParam(zoomParameter)->InitDouble("Zoom", 100, 25, 1000, 1, "%", 0, "", IParam::ShapePowCurve(3));
@@ -54,7 +58,7 @@ TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info
     auto lowerPart = IRECT(b.L, b.T + b.H() / 4, b.R, b.B);
 
     //pGraphics->AttachControl(new ITextControl(upperPart.GetMidVPadded(50), "Hello Mouth!", IText(50)));
-    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.19", IText(20)));
+    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.21", IText(20)));
     //pGraphics->AttachControl(text1);
     //pGraphics->AttachControl(text2);
     pGraphics->AttachControl(new IVKnobControl(upperPart.GetFromRight(120), zoomParameter));
@@ -87,7 +91,6 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
     //}
 
 
-
     for (int channelIndex = 0; channelIndex < nChans; channelIndex++) {
       outputs[channelIndex][sampleIndex] = inputs[channelIndex][sampleIndex];
     }
@@ -114,8 +117,6 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
           measureInputSmooth.resetSample();
           measureSidechainPeak.resetSample();
           measureSidechainSmooth.resetSample();
-          measureInputRms.resetSample();
-          measureSidechainRms.resetSample();
         }
 
         memoryInputPeak->addValue(setting->visualizerHeight);
@@ -143,7 +144,7 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
 
 
       //sidechain memory
-      double sidechainVolumePeakDb = /*(inputVolumePeakDb + 2.0 * (-40.0)) / 3.0;*/ convertRmsToDb(measureSidechainPeak.getResult());
+      double sidechainVolumePeakDb = convertRmsToDb(measureSidechainPeak.getResult());
       memorySidechainPeak->addValue(sidechainVolumePeakDb * proportionDbScreenHeight);
 
       double sidechainSmoothingValue = measureSidechainSmooth.getResult();
@@ -162,11 +163,7 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
       double sidechainVolumeRmsDb = convertRmsToDb(measureSidechainRms.getResult());
 
       memoryInputRms->addValue(inputVolumeRmsDb * proportionDbScreenHeight);
-      measureInputRms.resetSampleIfNeeded(sampleRate);
       memorySidechainRms->addValue(sidechainVolumeRmsDb * proportionDbScreenHeight);
-      measureSidechainRms.resetSampleIfNeeded(sampleRate);
     }
-
-    measureInputPeakSmoothingRatio.resetSampleIfNeeded(sampleRate / 10);
   }
 }

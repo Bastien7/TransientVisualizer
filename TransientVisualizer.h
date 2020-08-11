@@ -23,17 +23,21 @@ using namespace igraphics;
 
 
 /** TODO
-  Implement RMS difference graph (refactor the main method?)
-  Timing metering: get X mouse position, trace vertical line, and trace vertical lines at its right with multiple timing helpers (like a mm/cm ruler)
-    mouse management
-  Auto Y "Zoom" button with two states: (1) automatic Y scaling, (2) full Y scale (switch from one to other)
-  Optimization: remove point too much near (or on same X position?) --> for statistics, calculate % of points on same column
-  Lower the resolution for easier readability
-  Select point P1 to P2 (clickDown+drag), if P1 < P2 -> calculate attack time, else calculate release time
-  Improve the attack/release calculator by choosing optimized point (90% same abs(P1-P2) value but shorter duration)
+  //1 improvement: Use FifoMemory instead of average adjustment in MeasureAverageContinuous
+  1 improvement: Move Peak smooth average ratio to direct peak on MeasureAverageContinuous
+  5 feature: Implement RMS difference graph (refactor the main method?)
+  5 feature: Auto Y "Zoom" button with two states: (1) automatic Y scaling, (2) full Y scale (switch from one to other)
+  1 improvement: move onMouseDown threshold set to onMouseUp
+  1 feature: remove threshold on mouseUp RIGHT click
+  3 feature: Select point P1 to P2 (clickDown+drag), if P1 < P2 -> calculate attack time, else calculate release time
 
-  Fix: try to round/ceil value in case of displayFactor. The goal is to fix graphical issue that occurs with 0 < displayFactor < 1
-  Idea: see if override isDirty in IControl can help on performance instead of doing setDirty()
+
+  2 improvement: see if override isDirty in IControl can help on performance instead of doing setDirty()
+  3 optimization: remove point too much near (or on same X position?) --> for statistics, calculate % of points on same column
+  8 feature: Lower the resolution for easier readability
+  5 feature: Improve the attack/release calculator by finding existing graph points and choosing optimized point (90% same abs(P1-P2) value but shorter duration)
+  3 improvement: re-implement the dual measure with 50% over-coverage to smooth out Peak smooth measures
+  ? fix: try to round/ceil value in case of displayFactor. The goal is to fix graphical issue that occurs with 0 < displayFactor < 1
 */
 class TransientVisualizer final : public Plugin {
   private:
@@ -52,9 +56,9 @@ class TransientVisualizer final : public Plugin {
     MeasureAverage measureSidechainPeakSmoothingRatio = MeasureAverage();
 
     FifoMemory* memoryInputRms;
-    MeasureGroupAverage measureInputRms = MeasureGroupAverage({20, 10, 5, 3}); // 50/100/200/333 ms
+    MeasureGroupAverage measureInputRms;
     FifoMemory* memorySidechainRms;
-    MeasureGroupAverage measureSidechainRms = MeasureGroupAverage({ 20, 10, 5, 3 }); // 50/100/200/333 ms
+    MeasureGroupAverage measureSidechainRms;
 
 
   public:

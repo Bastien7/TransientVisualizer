@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <math.h>
+#include "FifoMemory.h"
 using namespace std;
 
 const double MINIMUM_VOLUME = 0.001; // -55dB threshold
@@ -24,7 +25,7 @@ protected:
   };
 };
 
-class SimpleMeasure : public Measure {
+class ResettableMeasure : public Measure {
 protected:
   long count = 0;
 
@@ -47,12 +48,12 @@ public:
   }
 };
 
-class MeasureAverage : public SimpleMeasure {
+class MeasureAverage : public ResettableMeasure {
   double average = 0;
 
 public:
-  using SimpleMeasure::resetSampleIfNeeded;
-  using SimpleMeasure::needReset;
+  using ResettableMeasure::resetSampleIfNeeded;
+  using ResettableMeasure::needReset;
 
   inline double getResult() {
     return average;
@@ -69,15 +70,44 @@ public:
       this->count += 1;
     }
   };
+
+  void forceCountValue(int newCount) {
+    this->count = newCount;
+  }
 };
 
-class MeasureMax : public SimpleMeasure {
+//if sample rate changes, this class become broken
+class MeasureAverageContinuous {
+  double average = 0;
+  FifoMemory memory;
+
+public:
+  MeasureAverageContinuous(double sampleRate, int durationTarget /*in ms*/) : memory(FifoMemory(sampleRate / durationTarget, 0)) { }
+
+  inline double getResult() {
+    return average;
+  }
+
+  void learnNewLevel(double sampleLevel, bool ignoreLowNoise = true) {
+    if (!ignoreLowNoise || hasSignalToLearn(sampleLevel)) {
+      const auto removedValue = memory.get(memory.currentIterator);
+      average = (average * memory.size - removedValue + sampleLevel) / memory.size;
+      memory.addValue(sampleLevel);
+    }
+  };
+
+  inline bool hasSignalToLearn(double sampleLevel) {
+    return sampleLevel > MINIMUM_VOLUME;
+  };
+};
+
+class MeasureMax : public ResettableMeasure {
 private:
   double max = 0;
 
 public:
-  using SimpleMeasure::resetSampleIfNeeded;
-  using SimpleMeasure::needReset;
+  using ResettableMeasure::resetSampleIfNeeded;
+  using ResettableMeasure::needReset;
 
   inline double getResult() {
     return max;
@@ -100,10 +130,10 @@ public:
 class MeasureGroupMax {
 private:
   vector<MeasureMax> measures;
-  vector<int> countTargetSampleDivier;
+  vector<int> countTargetSampleDivider;
 
 public:
-  MeasureGroupMax(vector<int> targets) : countTargetSampleDivier(targets) {
+  MeasureGroupMax(vector<int> targets) : countTargetSampleDivider(targets) {
     for (int i = 0; i < targets.size(); i++) {
       measures.push_back(MeasureMax());
     }
@@ -117,7 +147,7 @@ public:
 
   void resetSampleIfNeeded(int sampleRate, double newStartValue) {
     for (int i = 0; i < measures.size(); i++) {
-      measures[i].resetSampleIfNeeded(sampleRate / this->countTargetSampleDivier[i], newStartValue);
+      measures[i].resetSampleIfNeeded(sampleRate / this->countTargetSampleDivider[i], newStartValue);
     }
   }
 
@@ -142,29 +172,14 @@ public:
 
 class MeasureGroupAverage {
 private:
-  vector<MeasureAverage> measures;
-  vector<int> countTargetSampleDivier;
+  vector<MeasureAverageContinuous> measures;
 
 public:
-  MeasureGroupAverage(vector<int> targets) : countTargetSampleDivier(targets) {
+  MeasureGroupAverage(vector<int> targets, double sampleRate) {
+    vector<int> extendedTargets;
+
     for (int i = 0; i < targets.size(); i++) {
-      measures.push_back(MeasureAverage());
-    }
-  }
-
-  void resetSample() {
-    for (int i = 0; i < measures.size(); i++) {
-      measures[i].resetSample();
-    }
-  }
-
-  void resetSampleIfNeeded(int sampleRate) {
-    const double currentAverage = this->getResult();
-
-    for (int i = 0; i < measures.size(); i++) {
-      if (measures[i].needReset(sampleRate / this->countTargetSampleDivier[i])) {
-        measures[i].resetSampleIfNeeded(sampleRate / this->countTargetSampleDivier[i], currentAverage);
-      }
+      measures.push_back(MeasureAverageContinuous(sampleRate, targets[i]));
     }
   }
 

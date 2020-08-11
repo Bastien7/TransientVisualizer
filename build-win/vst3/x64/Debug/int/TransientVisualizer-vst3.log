@@ -1,6 +1,5 @@
 ﻿  TransientVisualizer.cpp
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(223,15): warning C4189: 'width': local variable is initialized but not referenced
-     Creating library C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\vst3\x64\Debug\int\TransientVisualizer.lib and object C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\vst3\x64\Debug\int\TransientVisualizer.exp
   TransientVisualizer-vst3.vcxproj -> C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\vst3\x64\Debug\TransientVisualizer.vst3
   POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
   FORMAT ".vst3" 
