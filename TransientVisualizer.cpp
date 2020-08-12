@@ -26,6 +26,8 @@ double inputGeneratorValue = .01;
 
 
 TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info, MakeConfig(kNumParams, kNumPresets)),
+    loudnessRmsInput(Loudness(GetSampleRate())),
+    loudnessRmsSidechain(Loudness(GetSampleRate())),
     memoryInputSmoothing(new FifoMemory(MAX_MEMORY_SIZE, -1)),
     memoryInputPeak(new FifoMemory(MAX_MEMORY_SIZE, -1)),
     //measureInputPeakSmoothingRatio(MeasureAverageContinuous(GetSampleRate(), 10, 1)),
@@ -82,7 +84,7 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
   for (int sampleIndex = 0; sampleIndex < nFrames; sampleIndex++) {
     double level = -1;
     double sidechainLevel = -1.0;
-    
+
     //if (IsChannelConnected(ERoute::kInput, 0) && IsChannelConnected(ERoute::kInput, 1)) { //TODO see how to optimize this to not call it each time
       double left = inputs[0][sampleIndex];
       double right = inputs[1][sampleIndex];
@@ -105,8 +107,8 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
     measureSidechainPeak.learnNewLevel(sidechainLevel, !autoScroll);
     measureSidechainSmooth.learnNewLevel(sidechainLevel, !autoScroll);
 
-    measureInputRms.learnNewLevel(level, !autoScroll);
-    measureSidechainRms.learnNewLevel(sidechainLevel, !autoScroll);
+    measureInputRms.learnNewLevel(loudnessRmsInput.applyLoudnessWeighting(level), !autoScroll);
+    measureSidechainRms.learnNewLevel(loudnessRmsSidechain.applyLoudnessWeighting(sidechainLevel), !autoScroll);
 
 
     if (measureInputPeak.needReset(sampleRate / 200)) {

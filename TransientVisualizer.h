@@ -6,6 +6,7 @@
 #include "FifoMemory.h"
 #include "Measure.h"
 #include "UiSetting.h"
+#include "Loudness.h"
 
 const int kNumPresets = 1;
 
@@ -23,8 +24,8 @@ using namespace igraphics;
 
 
 /** TODO
-  //1 improvement: Use FifoMemory instead of average adjustment in MeasureAverageContinuous
-  5 feature: Implement RMS difference graph (refactor the main method?)
+  improvement : divide control zone height by two, by putting all element on a single line
+    maybe try to insert controls on the chart
   5 feature: Auto Y "Zoom" button with two states: (1) automatic Y scaling, (2) full Y scale (switch from one to other)
   1 improvement: move onMouseDown threshold set to onMouseUp
   1 feature: remove threshold on mouseUp RIGHT click
@@ -42,6 +43,8 @@ using namespace igraphics;
 class TransientVisualizer final : public Plugin {
   private:
     UiSetting* setting;
+
+    Loudness loudnessRmsInput, loudnessRmsSidechain;
 
     FifoMemory* memoryInputPeak;
     FifoMemory* memoryInputSmoothing;
