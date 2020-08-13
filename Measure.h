@@ -19,7 +19,7 @@ public:
   virtual void learnNewLevel(double sampleLevel, bool ignoreLowNoise = true) = 0;
   virtual inline double getResult() = 0;
 
-protected:
+public:
   inline bool hasSignalToLearn(double sampleLevel) {
     return sampleLevel > MINIMUM_VOLUME;
   };
@@ -131,40 +131,45 @@ class MeasureGroupMax {
 private:
   vector<MeasureMax> measures;
   vector<int> countTargetSampleDivider;
+  const double size; //optimization, since the size will never change
 
 public:
-  MeasureGroupMax(vector<int> targets) : countTargetSampleDivider(targets) {
+  MeasureGroupMax(vector<int> targets) : countTargetSampleDivider(targets), size(targets.size()) {
     for (int i = 0; i < targets.size(); i++) {
       measures.push_back(MeasureMax());
     }
   }
 
   void resetSample() {
-    for (int i = 0; i < measures.size(); i++) {
+    for (int i = 0; i < size; i++) {
       measures[i].resetSample();
     }
   }
 
   void resetSampleIfNeeded(int sampleRate, double newStartValue) {
-    for (int i = 0; i < measures.size(); i++) {
+    for (int i = 0; i < size; i++) {
       measures[i].resetSampleIfNeeded(sampleRate / this->countTargetSampleDivider[i], newStartValue);
     }
   }
 
   virtual void learnNewLevel(double sampleLevel, bool ignoreLowNoise = true) {
-    for (int i = 0; i < measures.size(); i++) {
-      measures[i].learnNewLevel(sampleLevel, ignoreLowNoise);
+    const bool hasSignalToLearn = measures[0].hasSignalToLearn(sampleLevel);
+
+    if (hasSignalToLearn || !ignoreLowNoise) {
+      for (int i = 0; i < size; i++) {
+        measures[i].learnNewLevel(sampleLevel, false);
+      }
     }
   }
 
   double getResult() {
     double sum = 0;
 
-    for (int i = 0; i < measures.size(); i++) {
+    for (int i = 0; i < size; i++) {
       sum += measures[i].getResult();
     }
 
-    return sum / measures.size();
+    return sum / size;
   }
 };
 
@@ -173,9 +178,10 @@ public:
 class MeasureGroupAverage {
 private:
   vector<MeasureAverageContinuous> measures;
+  const double size; //optimization, since the size will never change
 
 public:
-  MeasureGroupAverage(vector<int> targets, double sampleRate) {
+  MeasureGroupAverage(vector<int> targets, double sampleRate) : size(targets.size()) {
     vector<int> extendedTargets;
 
     for (int i = 0; i < targets.size(); i++) {
@@ -184,18 +190,22 @@ public:
   }
 
   virtual void learnNewLevel(double sampleLevel, bool ignoreLowNoise = true) {
-    for (int i = 0; i < measures.size(); i++) {
-      measures[i].learnNewLevel(sampleLevel, ignoreLowNoise);
+    const bool hasSignalToLearn = measures[0].hasSignalToLearn(sampleLevel);
+
+    if (hasSignalToLearn || !ignoreLowNoise) {
+      for (int i = 0; i < size; i++) {
+        measures[i].learnNewLevel(sampleLevel, false);
+      }
     }
   }
 
   double getResult() {
     double sum = 0;
 
-    for (int i = 0; i < measures.size(); i++) {
+    for (int i = 0; i < size; i++) {
       sum += measures[i].getResult();
     }
 
-    return sum / measures.size();
+    return sum / size;
   }
 };

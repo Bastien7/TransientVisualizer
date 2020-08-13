@@ -187,6 +187,7 @@ class GraphVisualizer : public IControl {
 
 
   private:
+    //TODO could be optimized, but not huge impact
     void drawFixedMarkers(IGraphics& g) {
       const float top = this->mRECT.T;
       const float width = this->mRECT.R;
@@ -252,31 +253,39 @@ class GraphVisualizer : public IControl {
     void drawPeakChart(IGraphics& g, int polygonLength) {
       if (setting->detectionMode == 0) {
         g.FillConvexPolygon(peakFillColor, polygonX, polygonPeakY, polygonLength);
+        const int peakDifferenceUpperPolygonsXSize = peakDifferenceUpperPolygonsX.size();
+        const int peakDifferenceLowerPolygonsXSize = peakDifferenceLowerPolygonsX.size();
 
-        for (int i = 0; i < this->peakDifferenceUpperPolygonsX.size(); i++) {
-          float* arrayX = &peakDifferenceUpperPolygonsX[i][0]; //magic
+        for (int i = 0; i < peakDifferenceUpperPolygonsXSize; i++) {
+          auto x = peakDifferenceUpperPolygonsX[i];
+          float* arrayX = &x[0]; //magic
           float* arrayY = &peakDifferenceUpperPolygonsY[i][0];
-          g.FillConvexPolygon(fillDifferenceUpperColor, arrayX, arrayY, peakDifferenceUpperPolygonsX[i].size());
+          g.FillConvexPolygon(fillDifferenceUpperColor, arrayX, arrayY, x.size());
         }
-        for (int i = 0; i < this->peakDifferenceLowerPolygonsX.size(); i++) {
-          float* arrayX = &peakDifferenceLowerPolygonsX[i][0]; //magic
+        for (int i = 0; i < peakDifferenceLowerPolygonsXSize; i++) {
+          auto x = peakDifferenceLowerPolygonsX[i];
+          float* arrayX = &x[0]; //magic
           float* arrayY = &peakDifferenceLowerPolygonsY[i][0];
-          g.FillConvexPolygon(fillDifferenceLowerColor, arrayX, arrayY, peakDifferenceLowerPolygonsX[i].size());
+          g.FillConvexPolygon(fillDifferenceLowerColor, arrayX, arrayY, x.size());
         }
 
         g.DrawConvexPolygon(peakLineColor, polygonX, polygonPeakY, polygonLength, 0, 1.5);
       } else if (setting->detectionMode == 1) {
         g.FillConvexPolygon(rmsFillColor, polygonX, polygonRmsY, polygonLength);
+        const int rmsDifferenceUpperPolygonsXSize = rmsDifferenceUpperPolygonsX.size();
+        const int rmsDifferenceLowerPolygonsXSize = rmsDifferenceLowerPolygonsX.size();
 
-        for (int i = 0; i < this->rmsDifferenceUpperPolygonsX.size(); i++) {
-          float* arrayX = &rmsDifferenceUpperPolygonsX[i][0]; //magic
+        for (int i = 0; i < rmsDifferenceUpperPolygonsXSize; i++) {
+          auto x = rmsDifferenceUpperPolygonsX[i];
+          float* arrayX = &x[0]; //magic
           float* arrayY = &rmsDifferenceUpperPolygonsY[i][0];
-          g.FillConvexPolygon(fillDifferenceUpperColor, arrayX, arrayY, rmsDifferenceUpperPolygonsX[i].size());
+          g.FillConvexPolygon(fillDifferenceUpperColor, arrayX, arrayY, x.size());
         }
-        for (int i = 0; i < this->rmsDifferenceLowerPolygonsX.size(); i++) {
-          float* arrayX = &rmsDifferenceLowerPolygonsX[i][0]; //magic
+        for (int i = 0; i < rmsDifferenceLowerPolygonsXSize; i++) {
+          auto x = rmsDifferenceLowerPolygonsX[i];
+          float* arrayX = &x[0]; //magic
           float* arrayY = &rmsDifferenceLowerPolygonsY[i][0];
-          g.FillConvexPolygon(fillDifferenceLowerColor, arrayX, arrayY, rmsDifferenceLowerPolygonsX[i].size());
+          g.FillConvexPolygon(fillDifferenceLowerColor, arrayX, arrayY, x.size());
         }
 
         g.DrawConvexPolygon(rmsLineColor, polygonX, polygonRmsY, polygonLength, 0, 1.5);
@@ -297,8 +306,9 @@ class GraphVisualizer : public IControl {
       vector<float> differencePolygonY;
       //g.DrawLine(COLOR_YELLOW, startColumn * displayFactor, 0, startColumn * displayFactor, 580);
       //g.DrawLine(COLOR_BLUE, endColumn * displayFactor, 0, endColumn * displayFactor, 580);
+      const int differencePointsSize = differencePoints.size();
 
-      for (int index = 0; index < differencePoints.size(); index++) {
+      for (int index = 0; index < differencePointsSize; index++) {
         differencePolygonX.push_back((endColumn - 2 - index) * displayFactor);
         differencePolygonY.push_back(differencePoints[index]);
       }
@@ -452,10 +462,10 @@ class GraphVisualizer : public IControl {
       else {
         float yValue = (setting->smooth) * min(smoothValue, instantValue) + (1.0 - setting->smooth) * instantValue;
 
-        inputY = top + round(yValue, 1); //TODO maybe remove this round() here? but take care to graphic flickering?
+        inputY = top + yValue;
       }
 
-      return min(bottom+1, max(inputY, top)); //TODO maybe get back a round() here, but take care to graphic flickering?
+      return min(bottom+1, max(inputY, top));
     }
 
     float getYRmsValue(FifoMemory* inputMemory, int dataIndex, float top, float bottom) {
@@ -466,7 +476,7 @@ class GraphVisualizer : public IControl {
         inputY = bottom + 1;
       }
       else {
-        inputY = top + round(inputValue, 1); //TODO maybe get back a round() here, but take care to graphic flickering?
+        inputY = top + inputValue; //TODO maybe get back a round() here, but take care to graphic flickering?
       }
 
       return min(bottom+1, max(inputY, top));

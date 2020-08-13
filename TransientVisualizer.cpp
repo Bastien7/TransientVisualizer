@@ -60,7 +60,7 @@ TransientVisualizer::TransientVisualizer(const InstanceInfo& info) : Plugin(info
     auto lowerPart = IRECT(b.L, b.T + b.H() / 4, b.R, b.B);
 
     //pGraphics->AttachControl(new ITextControl(upperPart.GetMidVPadded(50), "Hello Mouth!", IText(50)));
-    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.21", IText(20)));
+    pGraphics->AttachControl(new ITextControl(upperPart.GetFromBottom(30), "v1.22-release", IText(20)));
     //pGraphics->AttachControl(text1);
     //pGraphics->AttachControl(text2);
     pGraphics->AttachControl(new IVKnobControl(upperPart.GetFromRight(120), zoomParameter));
@@ -79,6 +79,8 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
   const int nChans = NOutChansConnected();
   const int sampleRate = GetSampleRate();
   const float proportionDbScreenHeight = 1 / MINIMUM_VOLUME_DB * setting->visualizerHeight;
+
+  const bool autoScroll = GetParam(scrollingModeParameter)->Value() == 1;
 
 
   for (int sampleIndex = 0; sampleIndex < nFrames; sampleIndex++) {
@@ -99,8 +101,6 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
     for (int channelIndex = 0; channelIndex < nChans; channelIndex++) {
       outputs[channelIndex][sampleIndex] = inputs[channelIndex][sampleIndex];
     }
-
-    bool autoScroll = GetParam(scrollingModeParameter)->Value() == 1;
 
 
     measureInputPeak.learnNewLevel(level, !autoScroll);
