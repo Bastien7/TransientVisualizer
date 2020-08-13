@@ -93,6 +93,8 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
       sidechainLevel = abs(right/2);
     //}
 
+      double inputLoudnessLevel = abs(loudnessRmsInput.applyLoudnessWeighting(left/2));
+      double sidechainLoudnessLevel = abs(loudnessRmsSidechain.applyLoudnessWeighting(right/2));
 
     for (int channelIndex = 0; channelIndex < nChans; channelIndex++) {
       outputs[channelIndex][sampleIndex] = inputs[channelIndex][sampleIndex];
@@ -107,8 +109,8 @@ void TransientVisualizer::ProcessBlock(sample** inputs, sample** outputs, int nF
     measureSidechainPeak.learnNewLevel(sidechainLevel, !autoScroll);
     measureSidechainSmooth.learnNewLevel(sidechainLevel, !autoScroll);
 
-    measureInputRms.learnNewLevel(loudnessRmsInput.applyLoudnessWeighting(level), !autoScroll);
-    measureSidechainRms.learnNewLevel(loudnessRmsSidechain.applyLoudnessWeighting(sidechainLevel), !autoScroll);
+    measureInputRms.learnNewLevel(inputLoudnessLevel, !autoScroll);
+    measureSidechainRms.learnNewLevel(sidechainLoudnessLevel, !autoScroll);
 
 
     if (measureInputPeak.needReset(sampleRate / 200)) {

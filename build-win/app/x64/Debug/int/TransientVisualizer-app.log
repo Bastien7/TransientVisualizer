@@ -1,5 +1,4 @@
 ﻿  TransientVisualizer.cpp
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\Converters.h(29,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\Measure.h(85,134): warning C4244: 'argument': conversion from 'double' to 'const int', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(37,104): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(37,81): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
@@ -98,29 +97,14 @@ C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\G
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(446,53): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(446,31): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(453,22): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(455,1): error C2661: 'round': no overloaded function takes 2 arguments
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(462,48): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(462,30): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(78,58): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(79,69): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(80,73): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(82,39): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(82,24): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(83,64): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(83,40): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
-  TransientVisualizer-app.vcxproj -> C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\app\x64\Debug\TransientVisualizer.exe
-  POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
-  FORMAT ".exe" 
-  NAME "TransientVisualizer" 
-  PLATFORM "x64" 
-  COPY_VST2 "1" 
-  BUILT_BINARY "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win\app\x64\Debug\TransientVisualizer.exe" 
-  VST2_32_PATH "C:\Program Files (x86)\VstPlugins" 
-  VST2_64_PATH "C:\Program Files\VstPlugins"  
-  VST3_32_PATH "C:\Program Files (x86)\Common Files\VST3" 
-  VST3_64_PATH "C:\Program Files\Common Files\VST3" 
-  BUILD_DIR "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\build-win"
-  VST_ICON "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\projects\..\..\..\Dependencies\IPlug\VST3_SDK\doc\artwork\VST_Logo_Steinberg.ico" 
-  AAX_ICON "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\projects\..\..\..\Dependencies\IPlug\AAX_SDK\Utilities\PlugIn.ico" 
-  CREATE_BUNDLE_SCRIPT "C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\projects\..\..\..\Scripts\create_bundle.bat"
-  END POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
-          1 fichier(s) copié(s).
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\GraphVisualizer.h(469,1): error C2661: 'round': no overloaded function takes 2 arguments
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(76,58): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(77,69): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(78,73): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(80,39): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(80,24): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(81,64): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Bastien\Documents\iPlug2-projects\iPlug2\projects\TransientVisualizer\TransientVisualizer.cpp(81,40): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data

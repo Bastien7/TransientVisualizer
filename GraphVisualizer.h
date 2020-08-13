@@ -455,7 +455,7 @@ class GraphVisualizer : public IControl {
         inputY = top + round(yValue, 1); //TODO maybe remove this round() here? but take care to graphic flickering?
       }
 
-      return max(inputY, top); //TODO maybe get back a round() here, but take care to graphic flickering?
+      return min(bottom+1, max(inputY, top)); //TODO maybe get back a round() here, but take care to graphic flickering?
     }
 
     float getYRmsValue(FifoMemory* inputMemory, int dataIndex, float top, float bottom) {
@@ -469,6 +469,6 @@ class GraphVisualizer : public IControl {
         inputY = top + round(inputValue, 1); //TODO maybe get back a round() here, but take care to graphic flickering?
       }
 
-      return max(inputY, top);
+      return min(bottom+1, max(inputY, top));
     }
 };
